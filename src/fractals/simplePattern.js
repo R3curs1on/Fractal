@@ -46,25 +46,65 @@ const recursion = ( str , grammer , depth ) => {
 // }; 
 
 
-const initialStr = "\u25DF";
+// const initialStr = "\u25DF";
+
+// const grammer = {
+//     "\u25DF" : "\u25DF \u25DE",  // A block becomes two blocks with a space
+//     " " : "\u25DF \u25DE \u25DD \u25DC"  , // A space becomes three spaces (this keeps the geometry perfectly aligned)
+//     "\u25DE" : "\u25DE \u25DD",
+//     "\u25DD" : "\u25DD \u25DC",
+//     "\u25DC" : "\u25DC \u25DF"
+// }; 
+
+
+const initialStr = `_\n| |\n _`;
 
 const grammer = {
-    "\u25DF" : "\u25DF \u25DE",  // A block becomes two blocks with a space
-    " " : "\u25DF \u25DE \u25DD \u25DC"  , // A space becomes three spaces (this keeps the geometry perfectly aligned)
-    "\u25DE" : "\u25DE \u25DD",
-    "\u25DD" : "\u25DD \u25DC",
-    "\u25DC" : "\u25DC \u25DF"
+    "_" : "_\n| |\n _" ,
+    "|" : "_\n| |\n _" ,
 }; 
-
-
-
-
-
 
 console.log(recursion(initialStr,grammer,0));
 console.log(recursion(initialStr,grammer,1));
 console.log(recursion(initialStr,grammer,2));
 console.log(recursion(initialStr,grammer,6));
 // console.log(recursion(initialStr,grammer,12));
+
+
+
+
+const initialGrid  = [["|","_"],["_","|"]]
+const grammerGrid = {
+    "_" : [["|","_"],["_","|"]],
+    "|" : [["|","_"],["_","|"]]
+}
+
+const expand = (grid, grammar) => {
+    const newGrid = [];
+
+    grid.forEach(row => {
+        let blockRows = [];
+
+        row.forEach(cell => {
+            const block = grammar[cell] ;
+
+            block.forEach((blockRow, i) => {
+                if (!blockRows[i]) blockRows[i] = [];
+                blockRows[i].push(...blockRow);
+            });
+        });
+
+        newGrid.push(...blockRows);
+    });
+
+    return newGrid;
+};
+
+const recursionGrid  = (initialGrid , grammerGrid , depth)=>{
+    if (depth==0 ) return initialGrid;
+
+    const nextGrid = expand(initialGrid,grammerGrid);
+    return recursionGrid(nextGrid,grammerGrid,depth-1);
+}   
 
 
