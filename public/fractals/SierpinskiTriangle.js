@@ -45,7 +45,7 @@ class Triangle {
         ctx.stroke();
     }
 }
-function generatorNextGen(currentTriangles){
+function generateNextGenTriangles(currentTriangles){
     const nextGenTriangles = [];
     for(let t of currentTriangles){
         const x12 = (t.x1 + t.x2) / 2;
@@ -94,4 +94,4 @@ function drawSierpinski(ctx, x1, y1, x2, y2, x3, y3, depth) {
 }
 
 
-export { drawSierpinski , getRandomColor , Triangle , generatorNextGen };
+export { drawSierpinski , getRandomColor , Triangle , generateNextGenTriangles };

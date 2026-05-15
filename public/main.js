@@ -1,5 +1,6 @@
 
-import { Triangle, generatorNextGen } from "./fractals/SierpinskiTriangle.js"; 
+import { Triangle, generateNextGenTriangles } from "./fractals/SierpinskiTriangle.js"; 
+import { Segment, Point, generateNextGenSnowFlake } from "./fractals/SnowFlake.js";
 
 $(document).ready(function () {
     console.log("jQuery loaded");
@@ -16,6 +17,7 @@ $(document).ready(function () {
     const optionInfiniteCircle = $("#InfiniteCircles")
 
     let trianglesList = [];
+    let snowFlakeSegments = [];
 
     function clearCanvas(){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -59,17 +61,27 @@ $(document).ready(function () {
 
     $(document).on('keydown', function(e) {
         if(e.key === 'Enter' && chooseVisuals === "sierpinskiTriangle"){
-
+            
             if (trianglesList.length > 5000) {
                 console.warn("Max safe generation depth reached to prevent tab crash.");
                 return;
             }
 
             console.log("generate next gen of sierpinski triangle");
-            trianglesList = generatorNextGen(trianglesList);
+            trianglesList = generateNextGenTriangles(trianglesList);
+            clearCanvas();
             renderTriangles(trianglesList);
         }
-        else return;
+        else if(e.key === 'Enter' && chooseVisuals === "snowFlake"){
+            if (snowFlakeSegments.length > 5000) {
+                console.warn("Max safe generation depth reached to prevent tab crash.");
+                return;
+            }
+            console.log("generate next gen of snow flake");
+            snowFlakeSegments = generateNextGenSnowFlake(snowFlakeSegments);
+            clearCanvas();
+            renderSegments(snowFlakeSegments);  
+        }
     });
 
     optionSnowFlake.on('click',function() {
@@ -78,7 +90,31 @@ $(document).ready(function () {
         clearCanvas();
         console.log("draw snow flake");
         // drawSnowFlake(ctx, canvas.width/2, canvas.height/2, 200, 5);
+        const padding = 50;
+        const usableWidth = canvas.width - (padding * 2);
+        
+        // Equilateral triangle height calculation: side * sqrt(3)/2
+        const triangleHeight = usableWidth * (Math.sqrt(3) / 2); 
+
+        // Center the triangle vertically within the usable space
+        const topY = (canvas.height - triangleHeight) / 2;
+        const bottomY = topY + triangleHeight;
+
+        // Instantiating points for absolute maximum canvas coverage
+        const p1 = new Point(canvas.width / 2, topY);       // Top Center Apex
+        const p2 = new Point(canvas.width - padding, bottomY); // Bottom Right
+        const p3 = new Point(padding, bottomY);              // Bottom Left
+
+        snowFlakeSegments = [ new Segment(p1, p2) , new Segment(p2, p3) , new Segment(p3, p1) ];
+        renderSegments(snowFlakeSegments);
+
 
     })
+
+    function renderSegments(segmentsList){
+        for(let s of segmentsList){
+            s.draw(ctx);
+        }
+    }
 
 });
