@@ -1,22 +1,19 @@
 export const LSystemEngine = {
-    maxElements: 8, // Tracks Max String Generation Expansions
+    maxElements: 5, // A depth of 4-5 is absolute peak perfection for this grammar rule
 
     init(canvas) {
-        // Generation 0 starting text instructions (Axiom)
         return [{ axiom: "X", currentString: "X", depth: 0 }];
     },
 
     next(stateArray) {
         const state = stateArray[0];
-        if (state.depth >= 5) return stateArray; // Avoid string memory crashes
+        if (state.depth >= this.maxElements) return stateArray;
 
-        // Grammar rules mapping
         const rules = {
             "X": "F+[[X]-X]-F[-FX]+X",
             "F": "FF"
         };
 
-        // Standard string map array generation technique
         let nextString = state.currentString
             .split('')
             .map(char => rules[char] || char)
@@ -30,35 +27,42 @@ export const LSystemEngine = {
         const str = state.currentString;
 
         ctx.save();
-        ctx.strokeStyle = "rgba(0, 255, 204, 0.75)";
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = "rgba(0, 255, 204, 0.85)";
+        ctx.lineWidth = Math.max(1, 3.5 - state.depth * 0.5);
         
-        // Start position at bottom center looking upwards
-        ctx.translate(ctx.canvas.width / 2, ctx.canvas.height - 20);
+        // Root base position safely within lower bounds
+        ctx.translate(ctx.canvas.width / 2, ctx.canvas.height - 30);
         
-        const angleDelta = 25 * Math.PI / 180; // 25 degree turns
-        const stepLength = 4.5 / (state.depth + 1); // Shrink lines as depth grows
+        const angleDelta = 25 * Math.PI / 180; 
+        
+        // Stable geometric multiplier to prevent bounding box clipping
+        const stepLength = 180 * Math.pow(0.58, state.depth); 
 
-        const transformStack = [];
+        // CRITICAL WOBBLE FIX: Start ONE unified path for the entire layout
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
 
         for (let char of str) {
             if (char === "F") {
-                ctx.beginPath();
-                ctx.moveTo(0, 0);
+                // Trace line relative to the current local matrix state
                 ctx.lineTo(0, -stepLength);
-                ctx.stroke();
                 ctx.translate(0, -stepLength);
             } else if (char === "+") {
                 ctx.rotate(angleDelta);
             } else if (char === "-") {
                 ctx.rotate(-angleDelta);
             } else if (char === "[") {
-                // Save state matrix using HTML5 context stack tracking arrays
+                // Push the current transformation matrix state
                 ctx.save();
             } else if (char === "]") {
+                // Pop matrix and instantly move the path cursor back to the safe point
                 ctx.restore();
+                ctx.moveTo(0, 0); 
             }
         }
+        
+        // Complete the single unified path transaction cleanly
+        ctx.stroke();
         ctx.restore();
     }
 };
