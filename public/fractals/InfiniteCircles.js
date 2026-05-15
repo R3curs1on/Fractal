@@ -48,7 +48,7 @@ function generateNextCircleGen(currentCircles) {
 
         // Skip generating if the radius drops below 2 pixels (performance ceiling)
         if (newR < 2) continue;
-
+        
         // Push 4 sub-circles nestled perfectly inside the cardinal directions
         nextGenCircles.push(new FractalCircle(c.x - newR, c.y, newR)); // Left
         nextGenCircles.push(new FractalCircle(c.x + newR, c.y, newR)); // Right
