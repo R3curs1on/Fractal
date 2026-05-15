@@ -1,9 +1,248 @@
-.main-container{
-    background-color:peachpuff;
+/* ============================================================
+   FRACTAL ENGINE — Deep Terminal Theme
+   Font: Iosevka (monospace)
+   Palette: Deep navy + Electric cyan + Warm off-white
+   ============================================================ */
+
+:root {
+    /* Backgrounds */
+    --bg-base:      #07090f;
+    --bg-surface:   #0d1117;
+    --bg-elevated:  #161b27;
+    --bg-inset:     #040608;
+
+    /* Accents */
+    --cyan:         #2dd4bf;
+    --cyan-bright:  #5eead4;
+    --cyan-dim:     rgba(45, 212, 191, 0.08);
+    --cyan-border:  rgba(45, 212, 191, 0.22);
+    --cyan-glow:    rgba(45, 212, 191, 0.18);
+
+    /* Text */
+    --text-primary:  #e1e7ef;
+    --text-secondary:#8b95a8;
+    --text-muted:    #4b5563;
+
+    /* Borders */
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-mid:    rgba(255, 255, 255, 0.1);
 }
-.choose-visuals{
-    background-color: antiquewhite;
+
+/* --- Reset --- */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-.canvas{
-    background-color: burlywood;
+
+/* --- Base --- */
+html {
+    font-size: 16px;
+}
+
+body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Iosevka', 'Iosevka Web', 'Fira Code', 'Cascadia Code', monospace;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+
+    /* Subtle grid texture on body */
+    background-image:
+        linear-gradient(var(--border-subtle) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: center center;
+}
+
+/* --- Main Container --- */
+.main-container {
+    position: relative;
+    width: 92vw;
+    max-width: 1040px;
+    margin: 48px auto;
+    padding: 40px 40px 36px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-mid);
+    border-radius: 8px;
+    box-shadow:
+        0 0 0 1px var(--border-subtle),
+        0 24px 64px rgba(0, 0, 0, 0.7),
+        0 0 120px rgba(45, 212, 191, 0.03);
+}
+
+/* Thin accent line at the very top of the card */
+.main-container::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent,
+        var(--cyan) 40%,
+        var(--cyan) 60%,
+        transparent
+    );
+    opacity: 0.45;
+    border-radius: 1px;
+}
+
+/* --- Header --- */
+.site-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.eyebrow {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    opacity: 0.75;
+}
+
+h1 {
+    font-family: 'Iosevka', monospace;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 12px;
+
+    /* Subtle glow on text */
+    text-shadow: 0 0 48px rgba(45, 212, 191, 0.2);
+}
+
+/* Cyan underline accent on the heading */
+h1::after {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 2px;
+    background: var(--cyan);
+    margin: 16px auto 0;
+    border-radius: 2px;
+    opacity: 0.7;
+}
+
+.subtitle {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    margin-top: 14px;
+}
+
+/* --- Nav Buttons --- */
+.choose-visuals {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.choose-visuals button {
+    position: relative;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-mid);
+    padding: 10px 24px;
+    font-family: 'Iosevka', monospace;
+    font-size: 0.82rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+}
+
+.choose-visuals button:hover {
+    color: var(--cyan-bright);
+    border-color: var(--cyan-border);
+    background: var(--cyan-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(45, 212, 191, 0.1);
+}
+
+.choose-visuals button:active {
+    transform: translateY(0px);
+}
+
+.choose-visuals button.active {
+    color: var(--cyan-bright);
+    border-color: var(--cyan);
+    background: var(--cyan-dim);
+    box-shadow:
+        0 0 0 1px var(--cyan-border),
+        0 0 32px var(--cyan-glow),
+        inset 0 0 16px rgba(45, 212, 191, 0.04);
+}
+
+/* Active indicator dot */
+.choose-visuals button.active::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--cyan);
+    margin-right: 8px;
+    vertical-align: middle;
+    box-shadow: 0 0 6px var(--cyan);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+/* --- Controls Hint --- */
+#controlsHint {
+    text-align: center;
+    font-family: 'Iosevka', monospace;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    margin-bottom: 18px;
+    transition: opacity 0.4s ease;
+}
+
+kbd {
+    display: inline-block;
+    background: var(--bg-elevated);
+    color: var(--cyan-bright);
+    border: 1px solid var(--border-mid);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 1px 8px 2px;
+    font-family: 'Iosevka', monospace;
+    font-size: 0.76rem;
+    line-height: 1.6;
+}
+
+/* --- Canvas --- */
+#fractalCanvas {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    background: var(--bg-inset) !important;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    box-shadow:
+        inset 0 0 80px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(45, 212, 191, 0.04);
 }

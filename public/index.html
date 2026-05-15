@@ -1,25 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="./style.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fractals</title>
+    <title>Fractal Engine</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/iosevka@5.3.3/index.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+
     <div class="main-container">
-        <h1>Welcome to Fractals</h1>
-        <h2>Choose a fractal to visualize</h2>
-        
-        <div class="choose-visuals">
-            <button id="SierpinskiTriangle">Sierpinski Triangle</button>
-            <button id="SnowFlake">Snow Flake</button>
+
+        <header class="site-header">
+            <!-- <span class="eyebrow">recursion // iteration // infinity</span> -->
+            <h1>Fractal Engine</h1>
+            <p class="subtitle">Choose a structure below, then press Enter to go deeper</p>
+        </header>
+
+        <nav class="choose-visuals">
+            <button id="SierpinskiTriangle">Sierpiński Triangle</button>
+            <button id="SnowFlake">Koch Snowflake</button>
             <button id="InfiniteCircles">Infinite Circles</button>
+        </nav>
+
+        <div id="controlsHint" style="visibility: hidden;">
+            Press <kbd>Enter</kbd> to advance generation
         </div>
 
-        <canvas id="fractalCanvas" width="1000" height="1000" style="background:#111; margin-top:20px;"></canvas>
+        <canvas id="fractalCanvas" width="1000" height="1000"></canvas>
+
     </div>
-    
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script type="module" src="./main.js"></script>
 </body>
