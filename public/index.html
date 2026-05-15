@@ -4,28 +4,23 @@
     <link rel="stylesheet" href="./style.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fractals </title>
-    
+    <title>Fractals</title>
 </head>
 <body>
-
     <div class="main-container">
-        <h1> Welcome to fractals </h1>
-        <h2> Choose from given fractals to visualize </h2>
+        <h1>Welcome to Fractals</h1>
+        <h2>Choose a fractal to visualize</h2>
         
         <div class="choose-visuals">
-            <button class="SierpinskiTriangle" id="SierpinskiTriangle"> Sierpinski Triangle </button>
-            <button class="SnowFlake" id="SnowFlake"> Snow Flake</button>
-            <button class="InfiniteCircles" id="InfiniteCircles"> Infinite Circles</button>
-
+            <button id="SierpinskiTriangle">Sierpinski Triangle</button>
+            <button id="SnowFlake">Snow Flake</button>
+            <button id="InfiniteCircles">Infinite Circles</button>
         </div>
 
-        <div class="canvas">
-
-        </div>
+        <canvas id="fractalCanvas" width="600" height="600" style="background:#111; margin-top:20px;"></canvas>
     </div>
     
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="module" src="./main.js"></script>
 </body>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="../src/main.js"></script>
 </html>
