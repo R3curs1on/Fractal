@@ -1,5 +1,5 @@
 function * getRandomColor() {
-    var letters = '0123456789ABCDEF';
+    var letters = '0A1B2C3D4E5F6789';
     while(true) {
       var color = '#';
       for (var i = 0; i < 6; i++ ) {
@@ -35,7 +35,13 @@ class Triangle {
 
         let newCol = colorGenerator.next().value;
         ctx.strokeStyle = newCol;
+
+        ctx.fillStyle = newCol;
+
         ctx.lineWidth = 1;
+
+        ctx.fill();
+
         ctx.stroke();
     }
 }
