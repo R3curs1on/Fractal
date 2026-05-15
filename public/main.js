@@ -1,6 +1,7 @@
 
 import { Triangle, generateNextGenTriangles } from "./fractals/SierpinskiTriangle.js"; 
 import { Segment, Point, generateNextGenSnowFlake } from "./fractals/SnowFlake.js";
+import { FractalCircle, generateNextCircleGen } from "./fractals/InfiniteCircles.js";
 
 $(document).ready(function () {
     console.log("jQuery loaded");
@@ -18,6 +19,7 @@ $(document).ready(function () {
 
     let trianglesList = [];
     let snowFlakeSegments = [];
+    let infiniteCirclesList = [];
 
     function clearCanvas(){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -29,9 +31,22 @@ $(document).ready(function () {
         clearCanvas();
         console.log("draw infinite circle");
         // drawInfiniteCircle(ctx, canvas.width/2, canvas.height/2, 200, 5);
-
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        
+        // Max radius covering the canvas space safely with padding
+        const initialRadius = (canvas.width / 2) - 20; 
+        
+        // Generation 0: One large foundational circle element
+        infiniteCirclesList = [ new FractalCircle(centerX, centerY, initialRadius) ];
+        renderCircles(infiniteCirclesList);
     });
 
+    function renderCircles(circlesList) {
+        for (let c of circlesList) {
+            c.draw(ctx);
+        }
+    }
     optionSierpinskiTriangle.on('click',function (){
         chooseVisuals = "sierpinskiTriangle";
         console.log("clear canvas");
@@ -60,27 +75,43 @@ $(document).ready(function () {
     }
 
     $(document).on('keydown', function(e) {
-        if(e.key === 'Enter' && chooseVisuals === "sierpinskiTriangle"){
-            
-            if (trianglesList.length > 5000) {
-                console.warn("Max safe generation depth reached to prevent tab crash.");
-                return;
+        if(e.key === "Enter"){
+
+            if(chooseVisuals === "sierpinskiTriangle"){
+
+                if (trianglesList.length > 5000) {
+                    console.warn("Max safe generation depth reached to prevent tab crash.");
+                    return;
+                }
+
+                console.log("generate next gen of sierpinski triangle");
+                trianglesList = generateNextGenTriangles(trianglesList);
+                clearCanvas();
+                renderTriangles(trianglesList);
+            }
+            else if(chooseVisuals === "snowFlake"){
+                if (snowFlakeSegments.length > 5000) {
+                    console.warn("Max safe generation depth reached to prevent tab crash.");
+                    return;
+                }
+                console.log("generate next gen of snow flake");
+                snowFlakeSegments = generateNextGenSnowFlake(snowFlakeSegments);
+                clearCanvas();
+                renderSegments(snowFlakeSegments);  
+            }
+            else if (chooseVisuals === "infiniteCircle") {
+                // Safe break limit: 1 parent circle spattering 4^5 children = 1024 elements
+                if (infiniteCirclesList.length > 3000) {
+                    console.warn("Max safe circle depth reached.");
+                    return;
+                }
+
+                console.log("generate next gen of infinite circles");
+                infiniteCirclesList = generateNextCircleGen(infiniteCirclesList);
+                clearCanvas();
+                renderCircles(infiniteCirclesList);
             }
 
-            console.log("generate next gen of sierpinski triangle");
-            trianglesList = generateNextGenTriangles(trianglesList);
-            clearCanvas();
-            renderTriangles(trianglesList);
-        }
-        else if(e.key === 'Enter' && chooseVisuals === "snowFlake"){
-            if (snowFlakeSegments.length > 5000) {
-                console.warn("Max safe generation depth reached to prevent tab crash.");
-                return;
-            }
-            console.log("generate next gen of snow flake");
-            snowFlakeSegments = generateNextGenSnowFlake(snowFlakeSegments);
-            clearCanvas();
-            renderSegments(snowFlakeSegments);  
         }
     });
 
