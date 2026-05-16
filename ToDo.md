@@ -6,5 +6,13 @@
 - in src/rendering make some rendering logic ( this is not some image based )
 - write src/main.js for all DOM handler and rendering 
 - use src/utils for things out of above directory 
+- parameter controls
+- Mandelbrot zoom
+- info panel
+- generation history
+- export system
+- color systems
+- animated recursion
 
 !
+

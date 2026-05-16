@@ -246,3 +246,30 @@ kbd {
         inset 0 0 80px rgba(0, 0, 0, 0.8),
         0 0 0 1px rgba(45, 212, 191, 0.04);
 }
+
+#minifractalCanvas {
+    position: fixed;
+
+    top: 24px;
+    right: 24px;
+
+    width: 180px;
+    height: 180px;
+
+    opacity: 0.75;
+
+    border: 1px solid rgba(45, 212, 191, 0.18);
+    border-radius: 6px;
+
+    background: rgba(0,0,0,0.35);
+
+    box-shadow:
+        0 0 18px rgba(45,212,191,0.08),
+        inset 0 0 20px rgba(0,0,0,0.6);
+
+    backdrop-filter: blur(4px);
+
+    z-index: 20;
+
+    pointer-events: none;
+}

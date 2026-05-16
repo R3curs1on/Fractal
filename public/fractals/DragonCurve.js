@@ -34,7 +34,7 @@ var colorGenerator = getRandomColor();
         ctx.lineTo(this.e.x, this.e.y);
         let newCol = colorGenerator.next().value;
         ctx.strokeStyle =  newCol; //"#ff007f"; // Neon Pink
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 3;
         ctx.stroke();
     }
 }

@@ -1,5 +1,22 @@
 import { Point } from "./SnowFlake.js";
 
+
+function* getRandomGreenShade() {
+    while (true) {
+        // Green hue range
+        const hue = Math.floor(100 + Math.random() * 40);
+        // Strong saturation
+        const saturation = Math.floor(60 + Math.random() * 40);
+        // Variable brightness
+        const lightness = Math.floor(25 + Math.random() * 50);
+
+        yield `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    }
+}
+var colorGenerator = getRandomGreenShade();
+
+
+
 export const FernEngine = {
     maxElements: 200000,
     
@@ -39,7 +56,9 @@ export const FernEngine = {
     },
 
     render(ctx, list) {
-        ctx.fillStyle = "#00ff66"; // Vivid leaf green
+        // ctx.fillStyle = "#00ff66"; // Vivid leaf green
+        let newCol = colorGenerator.next().value;
+        ctx.fillStyle = newCol;
         
         // Loop through and map math bounds to canvas pixels
         for (let pt of list) {

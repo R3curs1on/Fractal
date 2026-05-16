@@ -152,8 +152,12 @@ import { LSystemEngine } from "./fractals/LSystemPlant.js";
 $(document).ready(function () {
     console.log("Unified Fractal Engine Initialized.");
 
-    const canvas = $("#fractalCanvas")[0];
+    const canvas = $("#fractalCanvas")[0];    
     const ctx = canvas.getContext('2d');
+
+    const miniCanvas = $("#minifractalCanvas")[0];
+    const miniCtx = miniCanvas.getContext('2d');
+
     const $controlsHint = $("#controlsHint");
 
     // --- State Storage Structures ---
@@ -177,7 +181,10 @@ $(document).ready(function () {
                 trianglesList = [ new Triangle(canvas.width/2, p, p, canvas.height-p, canvas.width-p, canvas.height-p) ];
             },
             next: () => trianglesList = generateNextGenTriangles(trianglesList),
-            render: () => trianglesList.forEach(t => t.draw(ctx))
+            render: () => trianglesList.forEach(t => {
+                t.draw(ctx) ;
+                updateMiniFractal()
+            })
         },
         "SnowFlake": {
             max: 15000,
@@ -193,7 +200,10 @@ $(document).ready(function () {
                 snowFlakeSegments = [ new Segment(p1, p2), new Segment(p2, p3), new Segment(p3, p1) ];
             },
             next: () => snowFlakeSegments = generateNextGenSnowFlake(snowFlakeSegments),
-            render: () => snowFlakeSegments.forEach(s => s.draw(ctx))
+            render: () => snowFlakeSegments.forEach(s => {
+                s.draw(ctx) ;
+                updateMiniFractal()
+            })
         },
         "InfiniteCircles": {
             max: 5000,
@@ -201,7 +211,10 @@ $(document).ready(function () {
                 infiniteCirclesList = [ new FractalCircle(canvas.width/2, canvas.height/2, (canvas.width/2)-20) ];
             },
             next: () => infiniteCirclesList = generateNextCircleGen(infiniteCirclesList),
-            render: () => infiniteCirclesList.forEach(c => c.draw(ctx))
+            render: () => infiniteCirclesList.forEach(c => {
+                c.draw(ctx) ;
+                updateMiniFractal()
+            })
         },
         "DragonCurve": {
             max: 15000,
@@ -211,7 +224,10 @@ $(document).ready(function () {
                 dragonSegments = [ new DragonSegment(p1, p2, true) ];
             },
             next: () => dragonSegments = generateNextDragonGen(dragonSegments),
-            render: () => dragonSegments.forEach(d => d.draw(ctx))
+            render: () => dragonSegments.forEach(d => {
+                  d.draw(ctx) ;
+                updateMiniFractal()
+            })
         },
         "VicsekFractal": {
             max: 4000,
@@ -220,7 +236,10 @@ $(document).ready(function () {
                 vicsekSquares = [ new VicsekSquare(100, 100, size) ];
             },
             next: () => vicsekSquares = generateNextVicsekGen(vicsekSquares),
-            render: () => vicsekSquares.forEach(v => v.draw(ctx))
+            render: () => vicsekSquares.forEach(v => {
+                v.draw(ctx) ;
+                updateMiniFractal()
+            })
         },
         "RecursiveTree": {
             max: 8000,
@@ -230,33 +249,48 @@ $(document).ready(function () {
                 treeBranches = [ new Branch(startNode, endNode, 0, 250) ];
             },
             next: () => treeBranches = generateNextTreeGen(treeBranches),
-            render: () => treeBranches.forEach(b => b.draw(ctx))
+            render: () => treeBranches.forEach(b => {
+                b.draw(ctx) ;
+                updateMiniFractal()
+            })
         },
         
         // --- Newly Added Advanced Math Modules ---
-        "Mandelbrot": {
-            max: MandelbrotEngine.maxElements,
-            init: () => pixelBasedState = MandelbrotEngine.init(canvas),
-            next: () => pixelBasedState = MandelbrotEngine.next(pixelBasedState),
-            render: () => MandelbrotEngine.render(ctx, pixelBasedState)
-        },
         "NewtonRaphson": {
             max: NewtonEngine.maxElements,
             init: () => pixelBasedState = NewtonEngine.init(canvas),
             next: () => pixelBasedState = NewtonEngine.next(pixelBasedState),
-            render: () => NewtonEngine.render(ctx, pixelBasedState)
+            render: () => {
+                NewtonEngine.render(ctx, pixelBasedState);
+                updateMiniFractal();
+            }
+        },
+        "Mandelbrot": {
+            max: MandelbrotEngine.maxElements,
+            init: () => pixelBasedState = MandelbrotEngine.init(canvas),
+            next: () => pixelBasedState = MandelbrotEngine.next(pixelBasedState),
+            render: () =>{
+                MandelbrotEngine.render(ctx, pixelBasedState)
+                updateMiniFractal()
+            }
         },
         "BarnsleyFern": {
             max: FernEngine.maxElements,
             init: () => pixelBasedState = FernEngine.init(canvas),
             next: () => pixelBasedState = FernEngine.next(pixelBasedState),
-            render: () => FernEngine.render(ctx, pixelBasedState)
+            render: () => {
+                FernEngine.render(ctx, pixelBasedState);
+                updateMiniFractal();
+            }
         },
         "LSystemPlant": {
             max: LSystemEngine.maxElements,
             init: () => pixelBasedState = LSystemEngine.init(canvas),
             next: () => pixelBasedState = LSystemEngine.next(pixelBasedState),
-            render: () => LSystemEngine.render(ctx, pixelBasedState)
+            render: () => {
+                LSystemEngine.render(ctx, pixelBasedState);
+                updateMiniFractal();
+            }
         }
     };
 
@@ -272,6 +306,15 @@ $(document).ready(function () {
         $controlsHint.css("visibility", "visible");
     }
 
+
+    function updateMiniFractal() {
+        miniCtx.clearRect(0, 0, miniCanvas.width, miniCanvas.height);
+        miniCtx.drawImage(canvas,
+            0, 0, canvas.width, canvas.height,
+            0, 0, miniCanvas.width, miniCanvas.height
+        );
+
+    }
     // --- Dynamic Event Routing Channel ---
     $(".choose-visuals button").on('click', function () {
         activeKey = $(this).attr('id');

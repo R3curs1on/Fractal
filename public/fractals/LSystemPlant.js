@@ -1,5 +1,21 @@
-export const LSystemEngine = {
-    maxElements: 5, // A depth of 4-5 is absolute peak perfection for this grammar rule
+
+
+function* getRandomGreenShade() {
+    while (true) {
+        // Green hue range
+        const hue = Math.floor(100 + Math.random() * 40);
+        // Strong saturation
+        const saturation = Math.floor(60 + Math.random() * 40);
+        // Variable brightness
+        const lightness = Math.floor(25 + Math.random() * 50);
+
+        yield `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    }
+}
+var colorGenerator = getRandomGreenShade();
+
+const LSystemEngine = {
+    maxElements: 6, // A depth of 4-5 is absolute peak perfection for this grammar rule
 
     init(canvas) {
         return [{ axiom: "X", currentString: "X", depth: 0 }];
@@ -27,7 +43,9 @@ export const LSystemEngine = {
         const str = state.currentString;
 
         ctx.save();
-        ctx.strokeStyle = "rgba(0, 255, 204, 0.85)";
+        // ctx.strokeStyle = "rgba(0, 255, 204, 0.85)";
+        ctx.strokeStyle = colorGenerator.next().value;
+
         ctx.lineWidth = Math.max(1, 3.5 - state.depth * 0.5);
         
         // Root base position safely within lower bounds
@@ -66,3 +84,5 @@ export const LSystemEngine = {
         ctx.restore();
     }
 };
+
+export { LSystemEngine };
