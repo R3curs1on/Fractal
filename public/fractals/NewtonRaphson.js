@@ -1,7 +1,9 @@
-const NewtonEngine = {
+import { getPaletteColor } from "./palette.js";
 
-    schema :[
-        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default"], default: "default" }
+const NewtonEngine = {
+    schema: [
+        { key: "maxElements", label: "Max Iterations", type: "range", min: 5, max: 80, step: 5, default: 20 },
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
 
     getDefaultParams() {
@@ -9,19 +11,19 @@ const NewtonEngine = {
         this.schema.forEach(p => params[p.key] = p.default);
         return params;
     },
-    // params : {
-    //     colorPalette: "default",
-    //     maxElements: 0, // Not used for pixel-mapped fractals
-    // }, 
 
     init(canvas, params) {
         this.iterations = 5;
-        return {generation: 0,elements : [], elementCount: 0  }; // We can track generation for potential dynamic coloring
+        return { generation: 0, elements: [], elementCount: this.iterations };
     },
 
-    next(currentState, params   ) {
-        this.iterations += 5;
-        return {generation: currentState.generation + 1, elements: currentState.elements, elementCount: currentState.elementCount};
+    next(currentState, params) {
+        this.iterations = Math.min(Number(params.maxElements), this.iterations + 5);
+        return {
+            generation: currentState.generation + 1,
+            elements: [],
+            elementCount: this.iterations
+        };
     },
 
     render(ctx, currentState, params) {
@@ -29,83 +31,63 @@ const NewtonEngine = {
         const height = ctx.canvas.height;
         const maxIter = this.iterations;
 
+        const roots = [
+            { r: 1, i: 0 },
+            { r: -0.5, i: Math.sqrt(3) / 2 },
+            { r: -0.5, i: -Math.sqrt(3) / 2 }
+        ];
+
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
-                let zx = 0, zy = 0;
-                const cx = (x - width / 2) * 4 / width;
-                const cy = (y - height / 2) * 4 / width;
+                let zr = (x / width) * 4 - 2;
+                let zi = (y / height) * 4 - 2;
 
                 let iter = 0;
-                while (zx * zx + zy * zy <= 4 && iter < maxIter) {
-                    const xtemp = zx * zx - zy * zy - cx;
-                    zy = 2 * zx * zy - cy;
-                    zx = xtemp;
+                let rootIndex = -1;
+
+                while (iter < maxIter) {
+                    const zr2 = zr * zr;
+                    const zi2 = zi * zi;
+
+                    const fzr = zr * zr2 - 3 * zr * zi2 - 1;
+                    const fzi = 3 * zr2 * zi - zi * zi2;
+                    const dfr = 3 * (zr2 - zi2);
+                    const dfi = 6 * zr * zi;
+                    const denom = dfr * dfr + dfi * dfi;
+
+                    if (denom === 0) break;
+
+                    const stepR = (fzr * dfr + fzi * dfi) / denom;
+                    const stepI = (fzi * dfr - fzr * dfi) / denom;
+
+                    zr -= stepR;
+                    zi -= stepI;
+
+                    for (let i = 0; i < roots.length; i++) {
+                        const dr = zr - roots[i].r;
+                        const di = zi - roots[i].i;
+                        if (dr * dr + di * di < 0.0008) {
+                            rootIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (rootIndex !== -1 || (stepR * stepR + stepI * stepI) < 1e-10) {
+                        break;
+                    }
+
                     iter++;
                 }
 
-                const colorValue = iter === maxIter ? 0 : Math.floor(255 * iter / maxIter);
-                ctx.fillStyle = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+                const color = rootIndex === -1
+                    ? "#05070b"
+                    : getPaletteColor(params.colorPalette, currentState.generation, rootIndex * 90 + iter);
+
+                ctx.fillStyle = color;
                 ctx.fillRect(x, y, 1, 1);
             }
         }
-
     }
 };
 
-export default NewtonEngine ;
-
-
-/*
-const SierpinskiEngine = { 
-
-    schema :[
-        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
-        { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
-        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
-    ],
-
-    // params: {
-    //     maxElements: 10000,
-    //     padding: 50,
-    //     colorPalette: "default"
-    // },
-
-    getDefaultParams() {
-        const params = {};
-        this.schema.forEach(p => params[p.key] = p.default);
-        return params;
-    },
-
-    init(canvas, params) { 
-        const p = Number(params.padding); 
-
-        let x1 = canvas.width / 2, y1 = p;
-        let x2 = p, y2 = canvas.height - p;
-        let x3 = canvas.width - p, y3 = canvas.height - p;
-
-        return {
-            generation: 0,   
-            elements: [ new Triangle( x1, y1, x2, y2, x3, y3 ) ] ,
-            elementCount: 1
-        };
-         
-    },
- 
-    next(currentState, params) {
-         if (currentState.elements.length > Number(params.maxElements)) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
-        }
-        const nextElements = generateNextGenTriangles(currentState.elements);
-        return {
-            generation: currentState.generation + 1,
-            elementCount: nextElements.length,
-            elements: nextElements
-        }; 
-    }, 
-    render(ctx, currentState, params) {
-        currentState.elements.forEach(t => t.draw(ctx, params.colorPalette, currentState.generation));
-    }
-};
-
-*/
+export default NewtonEngine;

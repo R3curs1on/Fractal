@@ -14,10 +14,11 @@ class VicsekSquare {
     draw(ctx, colorPalette, generation) {
         ctx.beginPath();
         ctx.rect(this.x, this.y, this.size, this.size);
-        ctx.fillStyle = this.color; 
-        ctx.strokeStyle = this.color; 
+        const color = getPaletteColor(colorPalette, generation);
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
         ctx.fill();
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 0.5;
         ctx.stroke();
     }
 }
@@ -60,7 +61,7 @@ export const VicsekEngine = {
 const VicsekFractalEngine = {
     schema: [
         { key: "maxElements", label: "Max Squares", type: "range", min: 100, max: 4000, step: 100, default: 4000 },
-        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default"], default: "default" }
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
     getDefaultParams() {
         const params = {};
@@ -88,6 +89,7 @@ const VicsekFractalEngine = {
 }
 
 export default VicsekFractalEngine;
+export { VicsekSquare };
 
 
 /*
@@ -159,3 +161,4 @@ export default VicsekFractalEngine;
 };
 
         */
+import { getPaletteColor } from "./palette.js";

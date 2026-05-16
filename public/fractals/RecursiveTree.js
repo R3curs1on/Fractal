@@ -23,8 +23,7 @@ class Branch {
         ctx.beginPath();
         ctx.moveTo(this.a.x, this.a.y);
         ctx.lineTo(this.e.x, this.e.y);
-        // let newCol = colorGenerator.next().value;
-        ctx.strokeStyle = "#00ff7f"; // Neon Green
+        ctx.strokeStyle = getPaletteColor(colorPalette, generation);
         ctx.lineWidth = Math.max(1, this.length * 0.08); 
         ctx.stroke();
     }
@@ -91,7 +90,7 @@ export const TreeEngine = {
 const RecursiveTreeEngine = {
     schema: [
         { key: "maxElements", label: "Max Branches", type: "range", min: 100, max: 8000, step: 100, default: 8000 },
-        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default"], default: "default" }
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
     getDefaultParams() {
         const params = {};
@@ -120,6 +119,7 @@ const RecursiveTreeEngine = {
 }
 
 export default RecursiveTreeEngine ;
+export { Branch, Point };
 
 
 /*
@@ -175,3 +175,4 @@ const SierpinskiEngine = {
         currentState.elements.forEach(t => t.draw(ctx, params.colorPalette, currentState.generation));
     }
 };*/
+import { getPaletteColor } from "./palette.js";

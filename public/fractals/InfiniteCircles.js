@@ -10,16 +10,16 @@ class FractalCircle {
         this.r = r; // Radius
     }
 
-    draw(ctx) {
+    draw(ctx, colorPalette, generation) {
         ctx.beginPath();
         // arc parameters: (x, y, radius, startAngle, endAngle)
         ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
         ctx.closePath();
-        // let newCol = colorGenerator.next().value;
-        ctx.fillStyle = "#ff7f00"; // Neon Orange
-        ctx.strokeStyle = "#ff7f00"; // Neon Orange
-        ctx.lineWidth = 1;
+        const color = getPaletteColor(colorPalette, generation);
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
         ctx.fill();
+        ctx.lineWidth = 0.5;
         ctx.stroke();
     }
 }
@@ -88,70 +88,6 @@ const InfiniteCirclesEngine = {
 
 }
 export default InfiniteCirclesEngine;
-
-/*
- max: 5000,
-            init: () => {
-                infiniteCirclesList = [ new FractalCircle(canvas.width/2, canvas.height/2, (canvas.width/2)-20) ];
-            },
-            next: () => infiniteCirclesList = generateNextCircleGen(infiniteCirclesList),
-            render: () => {
-                infiniteCirclesList.forEach(c => c.draw(ctx));
-                updateMiniFractal();
-            }
-
-
-
-            const SierpinskiEngine = { 
-
-    schema :[
-        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
-        { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
-        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
-    ],
-
-    // params: {
-    //     maxElements: 10000,
-    //     padding: 50,
-    //     colorPalette: "default"
-    // },
-
-    getDefaultParams() {
-        const params = {};
-        this.schema.forEach(p => params[p.key] = p.default);
-        return params;
-    },
-
-    init(canvas, params) { 
-        const p = Number(params.padding); 
-
-        let x1 = canvas.width / 2, y1 = p;
-        let x2 = p, y2 = canvas.height - p;
-        let x3 = canvas.width - p, y3 = canvas.height - p;
-
-        return {
-            generation: 0,   
-            elements: [ new Triangle( x1, y1, x2, y2, x3, y3 ) ] ,
-            elementCount: 1
-        };
-         
-    },
+export { FractalCircle };
  
-    next(currentState, params) {
-         if (currentState.elements.length > Number(params.maxElements)) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
-        }
-        const nextElements = generateNextGenTriangles(currentState.elements);
-        return {
-            generation: currentState.generation + 1,
-            elementCount: nextElements.length,
-            elements: nextElements
-        }; 
-    }, 
-    render(ctx, currentState, params) {
-        currentState.elements.forEach(t => t.draw(ctx, params.colorPalette, currentState.generation));
-    }
-};
-
-*/
+import { getPaletteColor } from "./palette.js";

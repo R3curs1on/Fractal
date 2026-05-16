@@ -17,13 +17,11 @@ class Point {
         this.turnLeft = turnLeft; // Boolean to alternate folding direction
     }
 
-    draw(ctx) {
+    draw(ctx, colorPalette, generation) {
         ctx.beginPath();
         ctx.moveTo(this.a.x, this.a.y);
         ctx.lineTo(this.e.x, this.e.y);
-        // let newCol = colorGenerator.next().value;
-        ctx.strokeStyle =  "#ff007f"; // Neon Pink
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = getPaletteColor(colorPalette, generation);
         ctx.stroke();
     }
 }
@@ -97,6 +95,7 @@ const DragonCurveEngine = {
 }
 
 export default DragonCurveEngine ;
+export { DragonSegment, Point };
 
 
 /*
@@ -167,3 +166,4 @@ export default DragonCurveEngine ;
     }
 };
 */
+import { getPaletteColor } from "./palette.js";

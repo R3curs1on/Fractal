@@ -26,7 +26,7 @@ const FernEngine = {
 
     schema :[   
         { key: "maxElements", label: "Max Points", type: "range", min: 10000, max: 500000, step: 10000, default: 200000 },
-        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "vibrant"], default: "default" }
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
 
     getDefaultParams() {
@@ -81,9 +81,7 @@ const FernEngine = {
     },
 
     render(ctx, currentState, params) {
-        ctx.fillStyle = "#00ff66"; // Vivid leaf green
-        // let newCol = colorGenerator.next().value;
-        // ctx.fillStyle = newCol;
+        ctx.fillStyle = getPaletteColor(params.colorPalette, currentState.generation);
         
         // Loop through and map math bounds to canvas pixels
         for (let pt of currentState.elements) {
@@ -152,3 +150,4 @@ const SierpinskiEngine = {
     }
 };
 */
+import { getPaletteColor } from "./palette.js";

@@ -17,7 +17,7 @@
 const LSystemEngine = {
     schema :[
         { key: "maxElements", label: "Max Depth", type: "range", min: 1, max: 6, step: 1, default: 5 },
-        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "vibrant"], default: "default" }
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
 
     getDefaultParams() {
@@ -63,8 +63,7 @@ const LSystemEngine = {
         const str = state.currentString;
 
         ctx.save();
-        ctx.strokeStyle = "rgba(0, 255, 204, 0.85)";
-        // ctx.strokeStyle = colorGenerator.next().value;
+        ctx.strokeStyle = getPaletteColor(params.colorPalette, currentState.generation);
 
         ctx.lineWidth = Math.max(1, 3.5 - state.depth * 0.5);
         
@@ -99,6 +98,7 @@ const LSystemEngine = {
             }
         }
         
+        ctx.lineWidth = 0.5;
         // Complete the single unified path transaction cleanly
         ctx.stroke();
         ctx.restore();
@@ -161,3 +161,4 @@ const SierpinskiEngine = {
     }
 };
 */
+import { getPaletteColor } from "./palette.js";

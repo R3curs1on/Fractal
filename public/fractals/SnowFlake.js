@@ -18,8 +18,10 @@ class Segment {
     draw(ctx, colorPalette, generation) {
         ctx.beginPath();
         ctx.moveTo(this.a.x, this.a.y);
-        ctx.lineTo(this.e.x, this.e.y); 
-        ctx.strokeStyle =  "#007fff"; // Neon Blue
+        ctx.lineTo(this.e.x, this.e.y);
+
+        const color = getPaletteColor(colorPalette, generation);
+        ctx.strokeStyle = color;
         ctx.lineWidth = 1.5;
         ctx.stroke();
     }
@@ -67,7 +69,7 @@ const SnowFlakeEngine = {
     schema :[
         { key: "maxElements", label: "Max Segments", type: "range", min: 100, max: 20000, step: 100, default: 15000 },
         { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 70 },
-        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default"], default: "default" }
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
 
     // params :{
@@ -115,6 +117,7 @@ const SnowFlakeEngine = {
 
 
 export default SnowFlakeEngine ;
+export { Point, Segment };
 
 /* 
 "SnowFlake": {
@@ -194,3 +197,4 @@ const SierpinskiEngine = {
 };
 
  */
+import { getPaletteColor } from "./palette.js";

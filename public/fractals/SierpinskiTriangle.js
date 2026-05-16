@@ -47,15 +47,14 @@ class Triangle {
         ctx.lineTo(this.x2, this.y2);
         ctx.lineTo(this.x3, this.y3);
         ctx.closePath();
-         
-        if (colorPalette === "default") {
-            const hue = (generation * 20) % 360; 
-            ctx.strokeStyle = `hsl(${hue}, 70%, 50%)`;
-        } else {
-            ctx.strokeStyle = "#900dc4"; 
-        }
+        const color = getPaletteColor(colorPalette, generation);
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
+        ctx.fill();
+        ctx.lineWidth = 0.5;
         ctx.stroke();
     }
+   
 }
 
 function generateNextGenTriangles(currentTriangles){
@@ -128,3 +127,5 @@ const SierpinskiEngine = {
 };
 
 export default SierpinskiEngine;
+export { Triangle };
+import { getPaletteColor } from "./palette.js";
