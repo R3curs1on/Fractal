@@ -1,29 +1,38 @@
 
 
-function* getRandomGreenShade() {
-    while (true) {
-        // Green hue range
-        const hue = Math.floor(100 + Math.random() * 40);
-        // Strong saturation
-        const saturation = Math.floor(60 + Math.random() * 40);
-        // Variable brightness
-        const lightness = Math.floor(25 + Math.random() * 50);
+// function* getRandomGreenShade() {
+//     while (true) {
+//         // Green hue range
+//         const hue = Math.floor(100 + Math.random() * 40);
+//         // Strong saturation
+//         const saturation = Math.floor(60 + Math.random() * 40);
+//         // Variable brightness
+//         const lightness = Math.floor(25 + Math.random() * 50);
 
-        yield `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-    }
-}
-var colorGenerator = getRandomGreenShade();
+//         yield `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+//     }
+// }
+// var colorGenerator = getRandomGreenShade();
 
 const LSystemEngine = {
-    maxElements: 6, // A depth of 4-5 is absolute peak perfection for this grammar rule
-
-    init(canvas) {
-        return [{ axiom: "X", currentString: "X", depth: 0 }];
+    params: {
+        maxElements: 6, // A depth of 4-5 is absolute peak perfection for this grammar rule
+        colorPalette: "default"
     },
 
-    next(stateArray) {
-        const state = stateArray[0];
-        if (state.depth >= this.maxElements) return stateArray;
+    init(canvas, params) {
+        let initialState = { axiom: "X", currentString: "X", depth: 0 };
+        return {generation: 0, elements: [initialState] };
+    },
+
+    next(currentState, params) {
+        if (currentState.elements[0].depth >= params.maxElements) {
+            console.warn("Safety Threshold Limit Hit");
+            return currentState;
+        }
+
+        const state = currentState.elements[0];
+        if (state.depth >= params.maxElements) return currentState;
 
         const rules = {
             "X": "F+[[X]-X]-F[-FX]+X",
@@ -35,16 +44,16 @@ const LSystemEngine = {
             .map(char => rules[char] || char)
             .join('');
 
-        return [{ axiom: "X", currentString: nextString, depth: state.depth + 1 }];
+        return { generation: currentState.generation + 1, elements: [{ axiom: "X", currentString: nextString, depth: state.depth + 1 }] };
     },
 
-    render(ctx, stateArray) {
-        const state = stateArray[0];
+    render(ctx, currentState, params) {
+        const state = currentState.elements[0];
         const str = state.currentString;
 
         ctx.save();
-        // ctx.strokeStyle = "rgba(0, 255, 204, 0.85)";
-        ctx.strokeStyle = colorGenerator.next().value;
+        ctx.strokeStyle = "rgba(0, 255, 204, 0.85)";
+        // ctx.strokeStyle = colorGenerator.next().value;
 
         ctx.lineWidth = Math.max(1, 3.5 - state.depth * 0.5);
         
@@ -85,4 +94,4 @@ const LSystemEngine = {
     }
 };
 
-export { LSystemEngine };
+export default LSystemEngine ;

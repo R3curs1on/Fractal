@@ -1,22 +1,7 @@
 
-function * getRandomColor() {
-    var letters = '0A1B2C3D4E5F6789';
-    while(true) {
-      var color = '#';
-      for (var i = 0; i < 6; i++ ) {
-          color += letters[Math.floor(Math.random() * 16)];
-      }
-      yield color;
-      
-    }
-    /*
-    use like:
-    var generator = getRandomColor();
-    console.log(generator.next().value); // e.g. "#3E2F1B"
-    console.log(generator.next().value); // e.g. "#A1B2C3"
-    */
-}
-var colorGenerator = getRandomColor();
+// import getRandomColor from './getRandomColor.js';
+
+// var colorGenerator = getRandomColor();
 
 class FractalCircle {
     constructor(x, y, r) {
@@ -30,9 +15,9 @@ class FractalCircle {
         // arc parameters: (x, y, radius, startAngle, endAngle)
         ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
         ctx.closePath();
-        let newCol = colorGenerator.next().value;
-        ctx.fillStyle = newCol;
-        ctx.strokeStyle = newCol; 
+        // let newCol = colorGenerator.next().value;
+        ctx.fillStyle = "#ff7f00"; // Neon Orange
+        ctx.strokeStyle = "#ff7f00"; // Neon Orange
         ctx.lineWidth = 1;
         ctx.fill();
         ctx.stroke();
@@ -59,4 +44,48 @@ function generateNextCircleGen(currentCircles) {
     return nextGenCircles;
 }
 
-export { FractalCircle, generateNextCircleGen };
+// export { FractalCircle, generateNextCircleGen };
+
+
+const InfiniteCirclesEngine = {
+    params:{
+        maxElements: 5000,
+        padding: 20,
+        colorPalette: "default"
+    },
+    init(canvas, params) {
+        let centerX = canvas.width / 2;
+        let centerY = canvas.height / 2;
+        let initialRadius = (Math.min(canvas.width, canvas.height) / 2) - params.padding;
+        return { generation : 0 ,  elements : [ new FractalCircle(centerX, centerY, initialRadius) ] };
+    },
+    next(currentState, params) {    
+        if (currentState.elements.length >= params.maxElements) {
+            console.warn("Reached maximum element limit for Infinite Circles. No further generations will be produced.");
+            return currentState; // Return unchanged state to halt progression
+        }
+        const nextGenCircles = generateNextCircleGen(currentState.elements);
+        return { generation: currentState.generation + 1, elements: nextGenCircles };
+    },
+    render: (ctx,currState,params) => { 
+        const col = params.colorPalette;
+        currState.elements.forEach(c => {
+            c.draw(ctx, col, currState.generation); 
+        });
+    }
+
+}
+export default InfiniteCirclesEngine;
+
+/*
+ max: 5000,
+            init: () => {
+                infiniteCirclesList = [ new FractalCircle(canvas.width/2, canvas.height/2, (canvas.width/2)-20) ];
+            },
+            next: () => infiniteCirclesList = generateNextCircleGen(infiniteCirclesList),
+            render: () => {
+                infiniteCirclesList.forEach(c => c.draw(ctx));
+                updateMiniFractal();
+            }
+
+*/

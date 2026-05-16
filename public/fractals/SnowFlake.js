@@ -1,22 +1,5 @@
-
-function * getRandomColor() {
-    var letters = '0A1B2C3D4E5F6789';
-    while(true) {
-      var color = '#';
-      for (var i = 0; i < 6; i++ ) {
-          color += letters[Math.floor(Math.random() * 16)];
-      }
-      yield color;
-      
-    }
-    /*
-    use like:
-    var generator = getRandomColor();
-    console.log(generator.next().value); // e.g. "#3E2F1B"
-    console.log(generator.next().value); // e.g. "#A1B2C3"
-    */
-}
-var colorGenerator = getRandomColor();
+// import getRandomColor from './getRandomColor.js';
+// var colorGenerator = getRandomColor();
 
 
 
@@ -32,12 +15,11 @@ class Segment {
         this.a = a;
         this.e = e;
     }
-    draw(ctx){
+    draw(ctx, colorPalette, generation) {
         ctx.beginPath();
         ctx.moveTo(this.a.x, this.a.y);
-        ctx.lineTo(this.e.x, this.e.y);
-        let newCol = colorGenerator.next().value;
-        ctx.strokeStyle =  newCol;
+        ctx.lineTo(this.e.x, this.e.y); 
+        ctx.strokeStyle =  "#007fff"; // Neon Blue
         ctx.lineWidth = 1.5;
         ctx.stroke();
     }
@@ -79,4 +61,65 @@ function generateNextGenSnowFlake(currentSegments){
     return nextGenSegments;
 }
 
-export { Segment , generateNextGenSnowFlake, Point };
+// export { Segment , generateNextGenSnowFlake, Point };
+
+const SnowFlakeEngine = {
+    params :{
+        maxElements : 15000,
+        padding: 70,
+        colorPalette: "default"
+    },
+    init (canvas,params){
+        const p = params.padding;
+
+        const uW = canvas.width - (p * 2);
+        const tH = uW * (Math.sqrt(3) / 2); 
+        const topY = (canvas.height - tH) / 2;
+        const bottomY = topY + tH;
+
+        const p1 = new Point(canvas.width / 2, topY);       
+        const p2 = new Point(canvas.width - p, bottomY); 
+        const p3 = new Point(p, bottomY);               
+
+        return { generation: 0, elements: [ new Segment(p1, p2), new Segment(p2, p3), new Segment(p3, p1) ] };
+    },
+    next(currState,params){
+        if(currState.elements.length > params.maxElements){ 
+            console.warn("Safety Threshold Limit Hit");
+            return currState;
+        }
+        const nextElements = generateNextGenSnowFlake(currState.elements);
+        return { generation: currState.generation + 1, elements: nextElements };
+    },
+    render(ctx,currState,params){
+        const col = params.colorPalette ;
+        const gen = currState.generation;
+        currState.elements.forEach(s =>{ 
+            s.draw(ctx, col, gen); 
+        });
+    }
+}
+
+export default SnowFlakeEngine ;
+
+/* 
+"SnowFlake": {
+            max: 15000,
+            init: () => {
+                const p = 70;
+                const uW = canvas.width - (p * 2);
+                const tH = uW * (Math.sqrt(3) / 2); 
+                const topY = (canvas.height - tH) / 2;
+                const bottomY = topY + tH;
+                const p1 = new Point(canvas.width / 2, topY);       
+                const p2 = new Point(canvas.width - p, bottomY); 
+                const p3 = new Point(p, bottomY);              
+                snowFlakeSegments = [ new Segment(p1, p2), new Segment(p2, p3), new Segment(p3, p1) ];
+            },
+            next: () => snowFlakeSegments = generateNextGenSnowFlake(snowFlakeSegments),
+            render: () => {
+                snowFlakeSegments.forEach(s => s.draw(ctx));
+                updateMiniFractal();
+            }
+        },
+ */

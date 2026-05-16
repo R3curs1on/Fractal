@@ -1,14 +1,6 @@
-function * getRandomColor() {
-    var letters = '0A1B2C3D4E5F6789';
-    while(true) {
-        var color = '#';
-        for (var i = 0; i < 6; i++ ) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        yield color;
-    }
-}
-const colorGenerator = getRandomColor();
+// import getRandomColor from './getRandomColor.js';
+
+// const colorGenerator = getRandomColor();
 
 class VicsekSquare {
     constructor(x, y, size) {
@@ -16,7 +8,7 @@ class VicsekSquare {
         this.y = y; 
         this.size = size;
         // COLOR FIX: Saved in memory at instantiation to stop shifting on redraws
-        this.color = colorGenerator.next().value; 
+        this.color =  "#7f00ff"; // Neon Purple
     }
 
     draw(ctx) {
@@ -62,4 +54,45 @@ export const VicsekEngine = {
     render(ctx, list) { list.forEach(v => v.draw(ctx)); }
 };
 
-export { VicsekSquare, generateNextVicsekGen };
+// export { VicsekSquare, generateNextVicsekGen };
+
+
+const VicsekFractalEngine = {
+    params: {
+        maxElements: 4000,
+        colorPalette: "default"
+    },
+    init(canvas, params) {
+        const size = canvas.width - 200;
+        return [ new VicsekSquare(100, 100, size) ];
+    },
+    next(currentState, params) { 
+        if (currentState.length >= params.maxElements) {
+            console.warn("Reached maximum element limit for Vicsek Fractal. No further generations will be produced.");
+            return currentState; // Return unchanged state to halt progression
+        }
+        return generateNextVicsekGen(currentState); 
+    },
+    render(ctx, currentState, params) { 
+        currentState.forEach(v => v.draw(ctx)); 
+    }
+}
+
+export default VicsekFractalEngine;
+
+
+/*
+ "VicsekFractal": {
+            max: 4000,
+            init: () => {
+                const size = canvas.width - 200;
+                vicsekSquares = [ new VicsekSquare(100, 100, size) ];
+            },
+            next: () => vicsekSquares = generateNextVicsekGen(vicsekSquares),
+            render: () => {
+                vicsekSquares.forEach(v => v.draw(ctx));
+                updateMiniFractal();
+            }
+        },
+
+        */

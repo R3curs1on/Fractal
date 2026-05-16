@@ -1,25 +1,14 @@
-import { Point } from "./SnowFlake.js";
+// import { Point } from "./SnowFlake.js";
+// import getRandomColor from './getRandomColor.js';
 
+// var colorGenerator = getRandomColor();
 
-function * getRandomColor() {
-    var letters = '0A1B2C3D4E5F6789';
-    while(true) {
-      var color = '#';
-      for (var i = 0; i < 6; i++ ) {
-          color += letters[Math.floor(Math.random() * 16)];
-      }
-      yield color;
-      
+class Point {
+    constructor(x,y) {
+        this.x = x;
+        this.y = y;
     }
-    /*
-    use like:
-    var generator = getRandomColor();
-    console.log(generator.next().value); // e.g. "#3E2F1B"
-    console.log(generator.next().value); // e.g. "#A1B2C3"
-    */
 }
-var colorGenerator = getRandomColor();
-
 
  class DragonSegment {
     constructor(a, e, turnLeft) {
@@ -32,8 +21,8 @@ var colorGenerator = getRandomColor();
         ctx.beginPath();
         ctx.moveTo(this.a.x, this.a.y);
         ctx.lineTo(this.e.x, this.e.y);
-        let newCol = colorGenerator.next().value;
-        ctx.strokeStyle =  newCol; //"#ff007f"; // Neon Pink
+        // let newCol = colorGenerator.next().value;
+        ctx.strokeStyle =  "#ff007f"; // Neon Pink
         ctx.lineWidth = 3;
         ctx.stroke();
     }
@@ -68,4 +57,51 @@ var colorGenerator = getRandomColor();
     return nextGen;
 }
 
-export { DragonSegment, generateNextDragonGen };
+// export { DragonSegment, generateNextDragonGen };
+
+const DragonCurveEngine = {
+    params:{
+        maxElements: 15000,
+        colorPalette: "default"
+    }
+    ,
+    init(canvas, params) {
+        const p1 = new Point(canvas.width * 0.3, canvas.height * 0.4);
+        const p2 = new Point(canvas.width * 0.7, canvas.height * 0.4);
+        return { generation: 0, elements: [ new DragonSegment(p1, p2, true) ] };
+    },
+    next(currentState, params) {
+        if (currentState.elements.length >= params.maxElements) {
+            console.log("Reached max element threshold for Dragon Curve. No further generations will be produced.");
+            return currentState; // No change if we've hit the max element threshold
+        }
+        let nextGenSegments = generateNextDragonGen(currentState.elements);
+        return { generation: currentState.generation + 1, elements: nextGenSegments };
+    },
+    render (ctx,currState,params) {
+        let col = params.colorPalette;
+        currState.elements.forEach(d => {
+            d.draw(ctx, col, currState.generation);
+        });
+    }
+
+}
+
+export default DragonCurveEngine ;
+
+
+/*
+     "DragonCurve": {
+                max: 15000,
+                init: () => {
+                    const p1 = new Point(canvas.width * 0.3, canvas.height * 0.4);
+                    const p2 = new Point(canvas.width * 0.7, canvas.height * 0.4);
+                    dragonSegments = [ new DragonSegment(p1, p2, true) ];
+                },
+                next: () => dragonSegments = generateNextDragonGen(dragonSegments),
+                render: () => {
+                    dragonSegments.forEach(d => d.draw(ctx));
+                    updateMiniFractal();
+                }
+            },
+*/

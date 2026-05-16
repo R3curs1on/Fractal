@@ -139,6 +139,12 @@ h1::after {
 }
 
 /* --- Nav Buttons --- */
+
+.choose-visuals-nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
 .choose-visuals {
     display: flex;
     justify-content: center;

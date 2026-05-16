@@ -1,16 +1,14 @@
-import { Point } from "./SnowFlake.js";
+// import { Point } from "./SnowFlake.js";
+// import getRandomColor from './getRandomColor.js';
 
-function * getRandomColor() {
-    var letters = '0A1B2C3D4E5F6789';
-    while(true) {
-        var color = '#';
-        for (var i = 0; i < 6; i++ ) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        yield color;
+// var colorGenerator = getRandomColor();
+
+class Point {
+    constructor(x,y) {
+        this.x = x;
+        this.y = y;
     }
 }
-var colorGenerator = getRandomColor();
 
 class Branch {
     constructor(a, e, angle, length, hasSplit = false) {
@@ -21,12 +19,12 @@ class Branch {
         this.hasSplit = hasSplit; // New flag to track if this branch already sprouted children
     }
 
-    draw(ctx) {
+    draw(ctx, colorPalette, generation) {
         ctx.beginPath();
         ctx.moveTo(this.a.x, this.a.y);
         ctx.lineTo(this.e.x, this.e.y);
-        let newCol = colorGenerator.next().value;
-        ctx.strokeStyle = newCol; 
+        // let newCol = colorGenerator.next().value;
+        ctx.strokeStyle = "#00ff7f"; // Neon Green
         ctx.lineWidth = Math.max(1, this.length * 0.08); 
         ctx.stroke();
     }
@@ -91,4 +89,28 @@ export const TreeEngine = {
     }
 };
 
-export { Branch , generateNextTreeGen };
+// export { Branch , generateNextTreeGen };
+
+const RecursiveTreeEngine = {
+    params: {
+        maxElements: 8000,
+        colorPalette: "default"
+    },
+    init(canvas, params) {
+        const startNode = new Point(canvas.width / 2, canvas.height - 50);
+        const endNode = new Point(canvas.width / 2, canvas.height - 300);
+        return { generation: 0, elements: [new Branch(startNode, endNode, 0, 250)] };
+    },
+    next(currentState, params) { 
+        if (currentState.elements.length >= params.maxElements) {
+            console.warn("Reached maximum element limit for Recursive Tree. No further generations will be produced.");
+            return currentState; // Return unchanged state to halt progression
+        }
+        return { generation: currentState.generation + 1, elements: generateNextTreeGen(currentState.elements) };
+    },
+    render(ctx, currentState, params) { 
+        currentState.elements.forEach(branch => branch.draw(ctx, params.colorPalette, currentState.generation)); 
+    }
+}
+
+export default RecursiveTreeEngine ;
