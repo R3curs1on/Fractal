@@ -72,18 +72,15 @@ function generateNextTreeGen(currentBranches) {
 // Map the clean unified structure to support your main.js Registry Factory pattern
 export const TreeEngine = {
     maxElements: 8000,
-
     init(canvas) {
         const startNode = new Point(canvas.width / 2, canvas.height - 50);
         const endNode = new Point(canvas.width / 2, canvas.height - 300);
         // Generation 0 starts with a single foundational root branch
         return [new Branch(startNode, endNode, 0, 250)];
     },
-
     next(currentList) {
         return generateNextTreeGen(currentList);
     },
-
     render(ctx, list) {
         list.forEach(branch => branch.draw(ctx));
     }
@@ -92,21 +89,30 @@ export const TreeEngine = {
 // export { Branch , generateNextTreeGen };
 
 const RecursiveTreeEngine = {
-    params: {
-        maxElements: 8000,
-        colorPalette: "default"
+    schema: [
+        { key: "maxElements", label: "Max Branches", type: "range", min: 100, max: 8000, step: 100, default: 8000 },
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default"], default: "default" }
+    ],
+    getDefaultParams() {
+        const params = {};
+        this.schema.forEach(p => params[p.key] = p.default);
+        return params;
     },
+    // params: {
+    //     maxElements: 8000,
+    //     colorPalette: "default"
+    // },
     init(canvas, params) {
         const startNode = new Point(canvas.width / 2, canvas.height - 50);
         const endNode = new Point(canvas.width / 2, canvas.height - 300);
-        return { generation: 0, elements: [new Branch(startNode, endNode, 0, 250)] };
+        return { generation: 0, elements: [new Branch(startNode, endNode, 0, 250)]  , elementCount: 1 };
     },
     next(currentState, params) { 
-        if (currentState.elements.length >= params.maxElements) {
+        if (currentState.elements.length >= Number(params.maxElements)) {
             console.warn("Reached maximum element limit for Recursive Tree. No further generations will be produced.");
             return currentState; // Return unchanged state to halt progression
         }
-        return { generation: currentState.generation + 1, elements: generateNextTreeGen(currentState.elements) };
+        return { generation: currentState.generation + 1, elements: generateNextTreeGen(currentState.elements), elementCount: generateNextTreeGen(currentState.elements).length };
     },
     render(ctx, currentState, params) { 
         currentState.elements.forEach(branch => branch.draw(ctx, params.colorPalette, currentState.generation)); 
@@ -114,3 +120,58 @@ const RecursiveTreeEngine = {
 }
 
 export default RecursiveTreeEngine ;
+
+
+/*
+
+const SierpinskiEngine = { 
+
+    schema :[
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
+    ],
+
+    // params: {
+    //     maxElements: 10000,
+    //     padding: 50,
+    //     colorPalette: "default"
+    // },
+
+    getDefaultParams() {
+        const params = {};
+        this.schema.forEach(p => params[p.key] = p.default);
+        return params;
+    },
+
+    init(canvas, params) { 
+        const p = Number(params.padding); 
+
+        let x1 = canvas.width / 2, y1 = p;
+        let x2 = p, y2 = canvas.height - p;
+        let x3 = canvas.width - p, y3 = canvas.height - p;
+
+        return {
+            generation: 0,   
+            elements: [ new Triangle( x1, y1, x2, y2, x3, y3 ) ] ,
+            elementCount: 1
+        };
+         
+    },
+ 
+    next(currentState, params) {
+         if (currentState.elements.length > Number(params.maxElements)) {
+            console.warn("Safety Threshold Limit Hit");
+            return currentState;
+        }
+        const nextElements = generateNextGenTriangles(currentState.elements);
+        return {
+            generation: currentState.generation + 1,
+            elementCount: nextElements.length,
+            elements: nextElements
+        }; 
+    }, 
+    render(ctx, currentState, params) {
+        currentState.elements.forEach(t => t.draw(ctx, params.colorPalette, currentState.generation));
+    }
+};*/

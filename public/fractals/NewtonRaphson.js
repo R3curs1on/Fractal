@@ -1,18 +1,27 @@
 const NewtonEngine = {
 
-    params : {
-        colorPalette: "default",
-        maxElements: 0, // Not used for pixel-mapped fractals
-    }, 
+    schema :[
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default"], default: "default" }
+    ],
+
+    getDefaultParams() {
+        const params = {};
+        this.schema.forEach(p => params[p.key] = p.default);
+        return params;
+    },
+    // params : {
+    //     colorPalette: "default",
+    //     maxElements: 0, // Not used for pixel-mapped fractals
+    // }, 
 
     init(canvas, params) {
         this.iterations = 5;
-        return {generation: 0}; // We can track generation for potential dynamic coloring
+        return {generation: 0,elements : [], elementCount: 0  }; // We can track generation for potential dynamic coloring
     },
 
     next(currentState, params   ) {
         this.iterations += 5;
-        return currentState;
+        return {generation: currentState.generation + 1, elements: currentState.elements, elementCount: currentState.elementCount};
     },
 
     render(ctx, currentState, params) {
@@ -44,3 +53,59 @@ const NewtonEngine = {
 };
 
 export default NewtonEngine ;
+
+
+/*
+const SierpinskiEngine = { 
+
+    schema :[
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
+    ],
+
+    // params: {
+    //     maxElements: 10000,
+    //     padding: 50,
+    //     colorPalette: "default"
+    // },
+
+    getDefaultParams() {
+        const params = {};
+        this.schema.forEach(p => params[p.key] = p.default);
+        return params;
+    },
+
+    init(canvas, params) { 
+        const p = Number(params.padding); 
+
+        let x1 = canvas.width / 2, y1 = p;
+        let x2 = p, y2 = canvas.height - p;
+        let x3 = canvas.width - p, y3 = canvas.height - p;
+
+        return {
+            generation: 0,   
+            elements: [ new Triangle( x1, y1, x2, y2, x3, y3 ) ] ,
+            elementCount: 1
+        };
+         
+    },
+ 
+    next(currentState, params) {
+         if (currentState.elements.length > Number(params.maxElements)) {
+            console.warn("Safety Threshold Limit Hit");
+            return currentState;
+        }
+        const nextElements = generateNextGenTriangles(currentState.elements);
+        return {
+            generation: currentState.generation + 1,
+            elementCount: nextElements.length,
+            elements: nextElements
+        }; 
+    }, 
+    render(ctx, currentState, params) {
+        currentState.elements.forEach(t => t.draw(ctx, params.colorPalette, currentState.generation));
+    }
+};
+
+*/

@@ -76,64 +76,55 @@ function generateNextGenTriangles(currentTriangles){
 }
 
 const SierpinskiEngine = { 
-    params: {
-        maxElements: 10000,
-        padding: 50,
-        colorPalette: "default"
+
+    schema :[
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
+    ],
+
+    // params: {
+    //     maxElements: 10000,
+    //     padding: 50,
+    //     colorPalette: "default"
+    // },
+
+    getDefaultParams() {
+        const params = {};
+        this.schema.forEach(p => params[p.key] = p.default);
+        return params;
     },
- 
-    init(canvas, params) {
-        const p = params.padding;
+
+    init(canvas, params) { 
+        const p = Number(params.padding); 
 
         let x1 = canvas.width / 2, y1 = p;
         let x2 = p, y2 = canvas.height - p;
         let x3 = canvas.width - p, y3 = canvas.height - p;
-        
-        return {  generation: 0,   elements: [ new Triangle( x1, y1, x2, y2, x3, y3 ) ]  };
+
+        return {
+            generation: 0,   
+            elements: [ new Triangle( x1, y1, x2, y2, x3, y3 ) ] ,
+            elementCount: 1
+        };
+         
     },
  
     next(currentState, params) {
-        if (currentState.elements.length > params.maxElements) {
+         if (currentState.elements.length > Number(params.maxElements)) {
             console.warn("Safety Threshold Limit Hit");
-            return currentState;  
+            return currentState;
         }
-        
         const nextElements = generateNextGenTriangles(currentState.elements);
         return {
             generation: currentState.generation + 1,
+            elementCount: nextElements.length,
             elements: nextElements
-        };
+        }; 
     }, 
     render(ctx, currentState, params) {
-        currentState.elements.forEach(t => {
-            t.draw(ctx, params.colorPalette, currentState.generation); 
-        });
+        currentState.elements.forEach(t => t.draw(ctx, params.colorPalette, currentState.generation));
     }
 };
 
 export default SierpinskiEngine;
-
-
-/*
-    make engine in format like this :
-  {
-    params,
-    init(canvas, params),
-    next(state, params),
-    render(ctx, state, params)
-  }
-
-  cux in main.js we can have a registry like this :
-   "SierpinskiTriangle": {
-            max: 10000,
-            init: () => {
-                const p = 50;
-                trianglesList = [ new Triangle(canvas.width/2, p, p, canvas.height-p, canvas.width-p, canvas.height-p) ];
-            },
-            next: () => trianglesList = generateNextGenTriangles(trianglesList),
-            render: () => {
-                trianglesList.forEach(t => t.draw(ctx));
-                updateMiniFractal();
-            }
-        }
-*/

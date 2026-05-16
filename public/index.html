@@ -12,14 +12,44 @@
 
     <canvas id="minifractalCanvas" width="600" height="600"></canvas>
 
+        <!-- Toggle Button -->
+    <button id="menuToggle" class="minimal-btn">⚙ Controls & Info</button>
+    
+    <!-- Sliding Panel Drawer -->
+    <div id="sideDrawer" class="drawer hidden">
+        <div class="drawer-content">
+            <!-- Info Section (Output) -->
+            <section class="info-section">
+                <h3 class="panel-title">Metrics</h3>
+                <div class="info-grid">
+                    <div>Fractal: <span id="infoName">-</span></div>
+                    <div>Gen: <span id="infoGen">0</span></div>
+                    <div>Elements: <span id="infoElements">0</span></div>
+                </div>
+            </section>
+        
+            <hr class="panel-divider">
+        
+            <!-- Controls Section (Input) -->
+            <section class="controls-section">
+                <h3 class="panel-title">Tweak Parameters</h3>
+                <div id="dynamicControls">
+                    <!-- main.js will automatically inject sliders here -->
+                </div>
+            </section>
+        </div>
+    </div>
+
     <div class="main-container">
+
+        
 
         <header class="site-header">
             <!-- <span class="eyebrow">recursion // iteration // infinity</span> -->
             <h1>Fractal Engine</h1>
             <p class="subtitle">Choose a structure below, then press Enter to go deeper</p>
         </header>
-
+        
         <nav class="choose-visuals-nav">
           <div class="choose-visuals">
             <button class="visual" id="SierpinskiTriangle">Sierpinski Triangle</button>

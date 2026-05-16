@@ -15,24 +15,35 @@
 // var colorGenerator = getRandomGreenShade();
 
 const LSystemEngine = {
-    params: {
-        maxElements: 6, // A depth of 4-5 is absolute peak perfection for this grammar rule
-        colorPalette: "default"
+    schema :[
+        { key: "maxElements", label: "Max Depth", type: "range", min: 1, max: 6, step: 1, default: 5 },
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "vibrant"], default: "default" }
+    ],
+
+    getDefaultParams() {
+        const params = {};
+        this.schema.forEach(p => params[p.key] = p.default);
+        return params;
     },
+
+    // params: {
+    //     maxElements: 6, // A depth of 4-5 is absolute peak perfection for this grammar rule
+    //     colorPalette: "default"
+    // },
 
     init(canvas, params) {
         let initialState = { axiom: "X", currentString: "X", depth: 0 };
-        return {generation: 0, elements: [initialState] };
+        return {generation: 0, elements: [initialState] , elementCount: 1 };
     },
 
     next(currentState, params) {
-        if (currentState.elements[0].depth >= params.maxElements) {
+        if (currentState.elements[0].depth >= Number(params.maxElements)) {
             console.warn("Safety Threshold Limit Hit");
             return currentState;
         }
 
         const state = currentState.elements[0];
-        if (state.depth >= params.maxElements) return currentState;
+        if (state.depth >= Number(params.maxElements)) return currentState;
 
         const rules = {
             "X": "F+[[X]-X]-F[-FX]+X",
@@ -44,7 +55,7 @@ const LSystemEngine = {
             .map(char => rules[char] || char)
             .join('');
 
-        return { generation: currentState.generation + 1, elements: [{ axiom: "X", currentString: nextString, depth: state.depth + 1 }] };
+        return { generation: currentState.generation + 1, elements: [{ axiom: "X", currentString: nextString, depth: state.depth + 1 }] , elementCount: 1 };
     },
 
     render(ctx, currentState, params) {
@@ -95,3 +106,58 @@ const LSystemEngine = {
 };
 
 export default LSystemEngine ;
+
+/*
+
+const SierpinskiEngine = { 
+
+    schema :[
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
+    ],
+
+    // params: {
+    //     maxElements: 10000,
+    //     padding: 50,
+    //     colorPalette: "default"
+    // },
+
+    getDefaultParams() {
+        const params = {};
+        this.schema.forEach(p => params[p.key] = p.default);
+        return params;
+    },
+
+    init(canvas, params) { 
+        const p = Number(params.padding); 
+
+        let x1 = canvas.width / 2, y1 = p;
+        let x2 = p, y2 = canvas.height - p;
+        let x3 = canvas.width - p, y3 = canvas.height - p;
+
+        return {
+            generation: 0,   
+            elements: [ new Triangle( x1, y1, x2, y2, x3, y3 ) ] ,
+            elementCount: 1
+        };
+         
+    },
+ 
+    next(currentState, params) {
+         if (currentState.elements.length > Number(params.maxElements)) {
+            console.warn("Safety Threshold Limit Hit");
+            return currentState;
+        }
+        const nextElements = generateNextGenTriangles(currentState.elements);
+        return {
+            generation: currentState.generation + 1,
+            elementCount: nextElements.length,
+            elements: nextElements
+        }; 
+    }, 
+    render(ctx, currentState, params) {
+        currentState.elements.forEach(t => t.draw(ctx, params.colorPalette, currentState.generation));
+    }
+};
+*/

@@ -18,7 +18,7 @@ The UI currently exposes these fractals:
 - `Fractal Tree` - recursive branching tree
 - `Mandelbrot Set` - pixel-based escape-time rendering of the Mandelbrot set
 - `Newton Fractal` - Newton iteration for `z^3 - 1`
-- `Barnsley Fern` - iterated function system point generation
+- `Barnsley Fern` - iterated function system point generation 
 - `L-System Plant` - string-rewrite plant rendered with turtle graphics
 
 ## How It Works

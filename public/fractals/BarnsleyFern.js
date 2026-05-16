@@ -24,19 +24,29 @@ class Point {
 
 const FernEngine = {
 
-    params :{
-        maxElements: 200000,
-        colorPalette: "default",
-    }, 
+    schema :[   
+        { key: "maxElements", label: "Max Points", type: "range", min: 10000, max: 500000, step: 10000, default: 200000 },
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "vibrant"], default: "default" }
+    ],
+
+    getDefaultParams() {
+        const params = {};
+        this.schema.forEach( p => params[p.key] = p.default);
+        return params;
+    },
+    // params :{
+    //     maxElements: 200000,
+    //     colorPalette: "default",
+    // }, 
     
     init(canvas,params) {
         // Generation 0: Initialize with a single starting point tracking list
         let initialPoint = new Point(0, 0);
-        return { generation: 0, elements: [initialPoint] };
+        return { generation: 0, elements: [initialPoint] , elementCount: 1 };
     },
 
     next(currentState, params) {
-        if (currentState.elements.length > params.maxElements) {
+        if (currentState.elements.length > Number(params.maxElements)   ) {
             console.warn("Safety Threshold Limit Hit");
             return currentState;
         }
@@ -67,7 +77,7 @@ const FernEngine = {
             lastPt = new Point(nextX, nextY);
             nextList.push(lastPt);
         }
-        return { generation: currentState.generation + 1, elements: nextList };
+        return { generation: currentState.generation + 1, elements: nextList, elementCount: nextList.length };
     },
 
     render(ctx, currentState, params) {
@@ -86,3 +96,59 @@ const FernEngine = {
 
 
 export default FernEngine ;
+
+
+/*
+
+const SierpinskiEngine = { 
+
+    schema :[
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
+        { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
+    ],
+
+    // params: {
+    //     maxElements: 10000,
+    //     padding: 50,
+    //     colorPalette: "default"
+    // },
+
+    getDefaultParams() {
+        const params = {};
+        this.schema.forEach(p => params[p.key] = p.default);
+        return params;
+    },
+
+    init(canvas, params) { 
+        const p = Number(params.padding); 
+
+        let x1 = canvas.width / 2, y1 = p;
+        let x2 = p, y2 = canvas.height - p;
+        let x3 = canvas.width - p, y3 = canvas.height - p;
+
+        return {
+            generation: 0,   
+            elements: [ new Triangle( x1, y1, x2, y2, x3, y3 ) ] ,
+            elementCount: 1
+        };
+         
+    },
+ 
+    next(currentState, params) {
+         if (currentState.elements.length > Number(params.maxElements)) {
+            console.warn("Safety Threshold Limit Hit");
+            return currentState;
+        }
+        const nextElements = generateNextGenTriangles(currentState.elements);
+        return {
+            generation: currentState.generation + 1,
+            elementCount: nextElements.length,
+            elements: nextElements
+        }; 
+    }, 
+    render(ctx, currentState, params) {
+        currentState.elements.forEach(t => t.draw(ctx, params.colorPalette, currentState.generation));
+    }
+};
+*/

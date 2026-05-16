@@ -279,3 +279,83 @@ kbd {
 
     pointer-events: none;
 }
+
+/* Minimalist toggle button */
+.minimal-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    backdrop-filter: blur(5px);
+    transition: all 0.2s ease;
+}
+.minimal-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* The Drawer Container */
+.drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 320px;
+    height: 100vh;
+    background: rgba(15, 15, 15, 0.85); /* Dark sleek backdrop */
+    backdrop-filter: blur(10px);        /* Trendy glassmorphism effect */
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+}
+
+/* Slide out of view when hidden class is active */
+.drawer.hidden {
+    transform: translateX(100%);
+}
+
+.drawer-content {
+    padding: 30px 20px;
+    color: #e0e0e0;
+    font-family: sans-serif;
+}
+
+.panel-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    margin-bottom: 15px;
+}
+
+.info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.95rem;
+}
+
+.panel-divider {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 25px 0;
+}
+
+/* Styling for dynamically injected control sliders */
+.control-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.control-group label {
+    font-size: 0.85rem;
+}
+.control-group input[type="range"] {
+    width: 100%;
+    accent-color: #900dc4; /* Keeps slider matches your fractal theme colors */
+}
