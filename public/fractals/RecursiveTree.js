@@ -1,8 +1,3 @@
-// import { Point } from "./SnowFlake.js";
-// import getRandomColor from './getRandomColor.js';
-
-// var colorGenerator = getRandomColor();
-
 class Point {
     constructor(x,y) {
         this.x = x;

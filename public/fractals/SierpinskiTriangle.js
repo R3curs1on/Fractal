@@ -1,6 +1,3 @@
-// import getRandomColor from './getRandomColor.js';
-// var colorGenerator = getRandomColor();
-
 // this below was first attempt to draw sierpinski triangle using string replacement and then printing it on console ; 
 function drawSierpinski(ctx, x1, y1, x2, y2, x3, y3, depth) {
     if (depth === 0) {
