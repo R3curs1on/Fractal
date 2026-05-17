@@ -59,6 +59,7 @@ $(document).ready( () => {
     $("#resetState").on("click", resetCurrentState);
     $("#exportPng").on("click", exportCurrentPng);
     $("#exportJson").on("click", exportCurrentJson);
+    $("#mandelbrotZoomIn").on("click", zoomInMandelbrot);
 
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -76,6 +77,12 @@ $(document).ready( () => {
         $(`#${activeId}`).addClass("active");
         $controlsHint.css("visibility", "visible");
         canvas.classList.toggle("mandelbrot-mode", activeId === "Mandelbrot");
+        syncMandelbrotControls();
+    }
+
+    function syncMandelbrotControls() {
+        const isEnabled = activeKey === "Mandelbrot" && currentState && currentState.view;
+        $("#mandelbrotZoomIn").prop("disabled", !isEnabled);
     }
 
     function updateMiniFractal() {
@@ -370,6 +377,25 @@ $(document).ready( () => {
         commitHistorySnapshot();
     }
 
+    function zoomInMandelbrot() {
+        if (activeKey !== "Mandelbrot" || !currentState || !currentState.view) return;
+        flushPendingHistoryCommit();
+
+        const view = currentState.view;
+        const maxZoom = 1e-12;// 0.0008;
+        const nextScale = Math.max(maxZoom, Math.min(6, view.scale * 0.85));
+
+        currentState = {
+            ...currentState,
+            view: {
+                ...view,
+                scale: nextScale
+            }
+        };
+
+        finalizeMandelbrotInteraction();
+    }
+
     function scheduleMandelbrotCommit(delay = 160) {
         if (mandelbrotCommitTimer) clearTimeout(mandelbrotCommitTimer);
         mandelbrotCommitTimer = setTimeout(() => {
@@ -387,6 +413,7 @@ $(document).ready( () => {
             ? `${currentState.elementCount || 0} | zoom ${currentState.view.scale.toFixed(4)}`
             : (currentState.elementCount || 0);
         $("#infoElements").text(metricsText);
+        syncMandelbrotControls();
     }
 
     // --- Unified Execution Render Loop ---
@@ -509,6 +536,13 @@ $(document).ready( () => {
             redoState();
             return;
         }
+        if (activeKey === "Mandelbrot" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            if (e.key === "+" || e.key === "=" || e.code === "NumpadAdd") {
+                e.preventDefault();
+                zoomInMandelbrot();
+                return;
+            }
+        }
 
         if (e.key === 'Enter' && currentEngine && currentState) {
             flushPendingHistoryCommit();
@@ -564,30 +598,4 @@ $(document).ready( () => {
     canvas.addEventListener("pointerup", endMandelbrotDrag);
     canvas.addEventListener("pointercancel", endMandelbrotDrag);
 
-    canvas.addEventListener("wheel", function (e) {
-        if (activeKey !== "Mandelbrot" || !currentState || !currentState.view) return;
-        e.preventDefault();
-
-        const rect = canvas.getBoundingClientRect();
-        const px = e.clientX - rect.left;
-        const py = e.clientY - rect.top;
-        const view = currentState.view;
-        const pointX = view.centerX + ((px / canvas.width) - 0.5) * view.scale;
-        const pointY = view.centerY + ((py / canvas.width) - 0.5) * view.scale;
-        const zoomFactor = e.deltaY < 0 ? 0.85 : 1.15;
-        const nextScale = Math.max(0.0008, Math.min(6, view.scale * zoomFactor));
-
-        currentState = {
-            ...currentState,
-            view: {
-                ...view,
-                scale: nextScale,
-                centerX: pointX - ((px / canvas.width) - 0.5) * nextScale,
-                centerY: pointY - ((py / canvas.width) - 0.5) * nextScale
-            }
-        };
-
-        scheduleRenderCycle();
-        scheduleMandelbrotCommit();
-    }, { passive: false });
 });
