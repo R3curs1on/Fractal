@@ -6,13 +6,18 @@
 - [x] in src/rendering make some rendering logic ( this is not some image based )
 - [x] write src/main.js for all DOM handler and rendering 
 - [x] use src/utils for things out of above directory 
-- [ ] parameter controls
-- [ ] Mandelbrot zoom
-- [ ] info panel
-- [ ] generation history
-- [ ] export system
-- [ ] color systems
+- [x] parameter controls
+- [x] Mandelbrot zoom
+- [ ] maths equations info panel of fractals
+- [x] generation history
+- [x] export system
+- [x] color systems
 - [ ] animated recursion
+- [x] undo/redo system
+- [ ] performance optimization for mandelbrot julia cube fractal zoom with offscreen canvas and web workers or openGL(https://github.com/R3curs1on/fractals_OpenGL)
+- [ ] add more fractals like Barnsley fern, L-system, Apollonian gasket, Newton fractal, etc.
+- [ ]  info panel and docs of fractals 
+
 
 
 
