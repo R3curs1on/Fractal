@@ -16,7 +16,7 @@
 
 const LSystemEngine = {
     schema :[
-        { key: "maxElements", label: "Max Depth", type: "range", min: 1, max: 6, step: 1, default: 5 },
+        { key: "maxElements", label: "Max Depth", type: "range", min: 1, max: 8, step: 1, default: 6 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
 
@@ -38,12 +38,21 @@ const LSystemEngine = {
 
     next(currentState, params) {
         if (currentState.elements[0].depth >= Number(params.maxElements)) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
 
         const state = currentState.elements[0];
-        if (state.depth >= Number(params.maxElements)) return currentState;
+        if (state.depth >= Number(params.maxElements)) {
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
+        }
 
         const rules = {
             "X": "F+[[X]-X]-F[-FX]+X",
@@ -112,7 +121,7 @@ export default LSystemEngine ;
 const SierpinskiEngine = { 
 
     schema :[
-        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 200, default: 12000 },
         { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
@@ -146,8 +155,11 @@ const SierpinskiEngine = {
  
     next(currentState, params) {
          if (currentState.elements.length > Number(params.maxElements)) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
         const nextElements = generateNextGenTriangles(currentState.elements);
         return {

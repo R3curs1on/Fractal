@@ -17,6 +17,9 @@ The UI currently exposes these fractals:
 - `Vicsek Cross` - cross-shaped square subdivision
 - `Fractal Tree` - recursive branching tree
 - `Mandelbrot Set` - pixel-based escape-time rendering of the Mandelbrot set
+- `Mandelbrot Cube` - cubic escape-time variant of Mandelbrot
+- `Julia` - Julia-set escape-time rendering with mouse-driven constants
+- `Julia Cube` - cubic Julia variant with the same interaction model
 - `Newton Fractal` - Newton iteration for `z^3 - 1`
 - `Barnsley Fern` - iterated function system point generation 
 - `L-System Plant` - string-rewrite plant rendered with turtle graphics
@@ -27,6 +30,9 @@ The UI currently exposes these fractals:
 - `public/main.js` handles button clicks and `Enter` key presses, then routes to the active fractal engine.
 - `public/style.css` contains the terminal-style visual theme.
 - `public/fractals/` contains the fractal implementations.
+
+Pixel fractals use a WebGL renderer on a dedicated canvas for smoother updates while zooming, changing Julia constants, and adjusting iterations.
+Newton uses the same GPU path instead of the old per-pixel `fillRect` loop.
 
 Some files in `public/fractals/` are present as scratch or experimental work and are not wired into the current UI:
 

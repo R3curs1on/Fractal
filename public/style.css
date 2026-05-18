@@ -239,7 +239,8 @@ kbd {
 }
 
 /* --- Canvas --- */
-#fractalCanvas {
+#fractalCanvas,
+#fractalCanvasGL {
     display: block;
     margin: 0 auto;
     width: 100%;
@@ -254,12 +255,18 @@ kbd {
     touch-action: none;
 }
 
-#fractalCanvas.mandelbrot-mode {
+#fractalCanvas.mandelbrot-mode,
+#fractalCanvasGL.mandelbrot-mode {
     cursor: grab;
 }
 
-#fractalCanvas.mandelbrot-mode.is-dragging {
+#fractalCanvas.mandelbrot-mode.is-dragging,
+#fractalCanvasGL.mandelbrot-mode.is-dragging {
     cursor: grabbing;
+}
+
+.render-hidden {
+    display: none !important;
 }
 
 #minifractalCanvas {
@@ -356,6 +363,60 @@ kbd {
 
 .history-section {
     margin-bottom: 20px;
+}
+
+.docs-section {
+    margin-bottom: 20px;
+}
+
+.doc-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 14px;
+    background: linear-gradient(180deg, rgba(45, 212, 191, 0.08), rgba(0, 0, 0, 0));
+    color: #cfd6e1;
+}
+
+.doc-title {
+    color: #f2f6fb;
+    font-size: 0.98rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.doc-summary {
+    margin-bottom: 12px;
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
+
+.doc-block + .doc-block {
+    margin-top: 10px;
+}
+
+.doc-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #5eead4;
+    margin-bottom: 6px;
+}
+
+.doc-pre {
+    white-space: pre-wrap;
+    font-family: inherit;
+    font-size: 0.8rem;
+    color: #f2f6fb;
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.doc-notes {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: #f2f6fb;
 }
 
 .action-row {

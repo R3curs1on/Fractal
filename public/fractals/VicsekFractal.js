@@ -25,8 +25,7 @@ class VicsekSquare {
 
 function generateNextVicsekGen(currentSquares) {
     // PRESERVATION FIX: Check if the upcoming generation will collapse to zero pixels
-    if (currentSquares.length === 0 || (currentSquares[0].size / 3) < 2) {
-        console.warn("Vicsek Fractal has reached maximum resolution limits.");
+    if (currentSquares.length === 0 || (currentSquares[0].size / 3) < 0.5) {
         return currentSquares; // Return original array safely instead of stripping data
     }
 
@@ -45,7 +44,7 @@ function generateNextVicsekGen(currentSquares) {
 }
 
 export const VicsekEngine = {
-    maxElements: 4000,
+    maxElements: 20000,
     init(canvas) {
         const size = canvas.width - 200;
         vicsekSquares = [ new VicsekSquare(100, 100, size) ];
@@ -60,7 +59,7 @@ export const VicsekEngine = {
 
 const VicsekFractalEngine = {
     schema: [
-        { key: "maxElements", label: "Max Squares", type: "range", min: 100, max: 4000, step: 100, default: 4000 },
+        { key: "maxElements", label: "Max Squares", type: "range", min: 100, max: 20000, step: 200, default: 8000 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
     getDefaultParams() {
@@ -78,8 +77,11 @@ const VicsekFractalEngine = {
     },
     next(currentState, params) { 
         if (currentState.elements.length >= Number(params.maxElements)) {
-            console.warn("Reached maximum element limit for Vicsek Fractal. No further generations will be produced.");
-            return currentState; // Return unchanged state to halt progression
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
         return { generation: currentState.generation + 1, elements: generateNextVicsekGen(currentState.elements), elementCount: generateNextVicsekGen(currentState.elements).length };
     },
@@ -111,7 +113,7 @@ export { VicsekSquare };
         const SierpinskiEngine = { 
 
     schema :[
-        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 200, default: 8000 },
         { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
@@ -145,8 +147,11 @@ export { VicsekSquare };
  
     next(currentState, params) {
          if (currentState.elements.length > Number(params.maxElements)) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
         const nextElements = generateNextGenTriangles(currentState.elements);
         return {

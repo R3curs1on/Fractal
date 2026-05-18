@@ -4,22 +4,30 @@ import InfiniteCirclesEngine, { FractalCircle } from "./fractals/InfiniteCircles
 import DragonCurveEngine, { DragonSegment } from "./fractals/DragonCurve.js";
 import VicsekFractalEngine, { VicsekSquare } from "./fractals/VicsekFractal.js";
 import RecursiveTreeEngine, { Branch, Point as TreePoint } from "./fractals/RecursiveTree.js";
+import ApollonianGasketEngine from "./fractals/ApollonianGasket.js";
 
-import MandelbrotEngine from "./fractals/Mandelbrot.js";
+import MandelbrotEngine, { createPixelFractalEngine } from "./fractals/Mandelbrot.js";
 import NewtonEngine from "./fractals/NewtonRaphson.js";
 import FernEngine from "./fractals/BarnsleyFern.js";
 import LSystemEngine from "./fractals/LSystemPlant.js";
+import { getFractalDocs } from "./fractalDocs.js";
+import { renderGeometryScene } from "./renderers/GeometryWebGL.js";
 
 $(document).ready( () => {
     console.log("Unified Fractal Engine Initialized.");
 
-    const canvas = $("#fractalCanvas")[0];    
+    const canvas = $("#fractalCanvas")[0];
+    const glCanvas = $("#fractalCanvasGL")[0];
     const ctx = canvas.getContext('2d');
 
     const miniCanvas = $("#minifractalCanvas")[0];
     const miniCtx = miniCanvas.getContext('2d');
 
     const $controlsHint = $("#controlsHint");
+    const $infoTitle = $("#infoTitle");
+    const $infoSummary = $("#infoSummary");
+    const $infoEquation = $("#infoEquation");
+    const $infoNotes = $("#infoNotes");
 
     const FRACTAL_REGISTRY = {
         "SierpinskiTriangle": SierpinskiEngine,
@@ -28,11 +36,20 @@ $(document).ready( () => {
         "DragonCurve": DragonCurveEngine,
         "VicsekFractal": VicsekFractalEngine,
         "RecursiveTree": RecursiveTreeEngine,
+        "ApollonianGasket": ApollonianGasketEngine,
         "Mandelbrot": MandelbrotEngine,
+        "MandelbrotCube": createPixelFractalEngine("MandelbrotCube"),
+        "Julia": createPixelFractalEngine("Julia"),
+        "JuliaCube": createPixelFractalEngine("JuliaCube"),
         "NewtonRaphson": NewtonEngine,
+        "NewtonFractal": NewtonEngine,
         "BarnsleyFern": FernEngine,
         "LSystemPlant": LSystemEngine
     };
+
+    const PIXEL_FRACTAL_KEYS = new Set(["Mandelbrot", "MandelbrotCube", "Julia", "JuliaCube", "NewtonRaphson", "NewtonFractal"]);
+    const JULIA_FRACTAL_KEYS = new Set(["Julia", "JuliaCube"]);
+    const DRAG_THRESHOLD = 4;
 
     let activeKey = null;
     let currentEngine = null;
@@ -45,9 +62,7 @@ $(document).ready( () => {
     let renderFrame = null;
     let renderToken = 0;
     let mandelbrotCommitTimer = null;
-    let isMandelbrotDragging = false;
-    let mandelbrotDragPointerId = null;
-    let mandelbrotDragLast = null;
+    let dragSession = null;
 
     // --- Side Drawer Toggle Control ---
     $("#menuToggle").on("click", function() {
@@ -60,9 +75,13 @@ $(document).ready( () => {
     $("#exportPng").on("click", exportCurrentPng);
     $("#exportJson").on("click", exportCurrentJson);
     $("#mandelbrotZoomIn").on("click", zoomInMandelbrot);
+    $("#mandelbrotZoomOut").on("click", zoomOutFractal);
+    $("#juliaFreeze").on("click", toggleJuliaFreeze);
 
     function clearCanvas() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (!isPixelMode()) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
     }
 
     function cloneData(value) {
@@ -72,23 +91,154 @@ $(document).ready( () => {
         return JSON.parse(JSON.stringify(value));
     }
 
+    function createDefaultDisplayView() {
+        return {
+            centerX: canvas.width / 2,
+            centerY: canvas.height / 2,
+            scale: 1,
+        };
+    }
+
+    function ensureView(state) {
+        if (!state) return state;
+        if (state.view) return state;
+        return {
+            ...state,
+            view: createDefaultDisplayView(),
+        };
+    }
+
+    function withView(state, view) {
+        if (!state) return state;
+        return {
+            ...state,
+            view,
+        };
+    }
+
+    function isPixelMode() {
+        return PIXEL_FRACTAL_KEYS.has(activeKey);
+    }
+
+    function getActiveCanvas() {
+        return glCanvas;
+    }
+
+    function syncCanvasVisibility() {
+        const interactiveMode = !!(currentState && currentState.view);
+        canvas.classList.add("render-hidden");
+        glCanvas.classList.remove("render-hidden");
+        canvas.classList.remove("mandelbrot-mode");
+        glCanvas.classList.toggle("mandelbrot-mode", interactiveMode);
+    }
+
+    function normalizeStateForMode(state) {
+        if (!state) return state;
+        if (isPixelMode()) {
+            if (state.view) return state;
+            if (currentEngine && typeof currentEngine.init === "function") {
+                const seedState = currentEngine.init(getActiveCanvas(), currentParams);
+                return {
+                    ...state,
+                    view: seedState.view || createDefaultDisplayView(),
+                    mouseX: state.mouseX ?? seedState.mouseX,
+                    mouseY: state.mouseY ?? seedState.mouseY,
+                    juliaFrozen: state.juliaFrozen ?? seedState.juliaFrozen,
+                };
+            }
+            return ensureView(state);
+        }
+        return ensureView(state);
+    }
+
+    function applyDisplayPan(state, dx, dy) {
+        if (!state || !state.view) return state;
+        return withView(state, {
+            ...state.view,
+            centerX: state.view.centerX - dx * state.view.scale,
+            centerY: state.view.centerY - dy * state.view.scale,
+        });
+    }
+
+    function applyDisplayZoom(state, canvasNode, x, y, zoomIn = true) {
+        if (!state || !state.view) return state;
+        const factor = zoomIn ? 0.9 : 1.1;
+        const nextScale = state.view.scale * factor;
+        if (!Number.isFinite(nextScale) || nextScale <= 0) {
+            return state;
+        }
+        const appliedFactor = nextScale / state.view.scale;
+        return withView(state, {
+            ...state.view,
+            centerX: state.view.centerX + (1 - appliedFactor) * (x - canvasNode.width / 2),
+            centerY: state.view.centerY + (1 - appliedFactor) * (y - canvasNode.height / 2),
+            scale: nextScale,
+        });
+    }
+
+    function panCurrentFractal(dx, dy, targetCanvas) {
+        if (!currentState || !currentState.view) return;
+        if (isPixelMode() && typeof currentEngine.panBy === "function") {
+            currentState = currentEngine.panBy(currentState, targetCanvas, dx, dy);
+        } else {
+            currentState = applyDisplayPan(currentState, dx, dy);
+        }
+    }
+
+    function zoomCurrentFractal(targetCanvas, x, y, zoomIn = true) {
+        if (!currentState || !currentState.view) return;
+        if (isPixelMode() && typeof currentEngine.zoomAt === "function") {
+            currentState = currentEngine.zoomAt(currentState, targetCanvas, x, y, zoomIn);
+        } else {
+            currentState = applyDisplayZoom(currentState, targetCanvas, x, y, zoomIn);
+        }
+    }
+
     function setActiveButton(activeId) {
         $(".choose-visuals button").removeClass("active");
         $(`#${activeId}`).addClass("active");
         $controlsHint.css("visibility", "visible");
-        canvas.classList.toggle("mandelbrot-mode", activeId === "Mandelbrot");
+        syncCanvasVisibility();
         syncMandelbrotControls();
     }
 
     function syncMandelbrotControls() {
-        const isEnabled = activeKey === "Mandelbrot" && currentState && currentState.view;
+        const isEnabled = currentState && currentState.view;
         $("#mandelbrotZoomIn").prop("disabled", !isEnabled);
+        $("#mandelbrotZoomOut").prop("disabled", !isEnabled);
+        const isJulia = JULIA_FRACTAL_KEYS.has(activeKey) && currentState && currentState.view;
+        $("#juliaFreeze").prop("disabled", !isJulia);
+        if (isJulia) {
+            $("#juliaFreeze").text(currentState.juliaFrozen ? "Unfreeze Julia" : "Freeze Julia");
+        } else {
+            $("#juliaFreeze").text("Freeze Julia");
+        }
+    }
+
+    function formatZoomValue(value) {
+        if (!Number.isFinite(value)) {
+            return "∞";
+        }
+        const abs = Math.abs(value);
+        if ((abs > 100000 || (abs > 0 && abs < 0.001))) {
+            return value.toExponential(3);
+        }
+        return value.toFixed(4);
+    }
+
+    function refreshFractalDocs() {
+        const docs = getFractalDocs(activeKey);
+        $infoTitle.text(docs.title || activeKey || "-");
+        $infoSummary.text(docs.summary || "");
+        $infoEquation.text(docs.equation || "—");
+        $infoNotes.text(docs.notes || "");
     }
 
     function updateMiniFractal() {
         miniCtx.clearRect(0, 0, miniCanvas.width, miniCanvas.height);
-        miniCtx.drawImage(canvas,
-            0, 0, canvas.width, canvas.height,
+        const activeCanvas = getActiveCanvas();
+        miniCtx.drawImage(activeCanvas,
+            0, 0, activeCanvas.width, activeCanvas.height,
             0, 0, miniCanvas.width, miniCanvas.height
         );
     }
@@ -254,7 +404,7 @@ $(document).ready( () => {
         if (mandelbrotCommitTimer) {
             clearTimeout(mandelbrotCommitTimer);
             mandelbrotCommitTimer = null;
-            if (activeKey === "Mandelbrot" && currentState && currentState.view) {
+            if (PIXEL_FRACTAL_KEYS.has(activeKey) && currentState && currentState.view) {
                 finalizeMandelbrotInteraction();
             } else {
                 commitHistorySnapshot();
@@ -270,7 +420,7 @@ $(document).ready( () => {
             activeKey = snapshot.activeKey;
             currentEngine = FRACTAL_REGISTRY[activeKey];
             currentParams = cloneData(snapshot.currentParams);
-            currentState = deserializeState(activeKey, snapshot.currentState);
+            currentState = normalizeStateForMode(deserializeState(activeKey, snapshot.currentState));
             setActiveButton(activeKey);
             renderControlPanel();
             executeRenderCycle();
@@ -300,7 +450,7 @@ $(document).ready( () => {
         if (!currentEngine) return;
         flushPendingHistoryCommit();
         stopMandelbrotInteraction();
-        currentState = currentEngine.init(canvas, currentParams);
+        currentState = normalizeStateForMode(currentEngine.init(getActiveCanvas(), currentParams));
         executeRenderCycle();
         commitHistorySnapshot();
     }
@@ -329,7 +479,7 @@ $(document).ready( () => {
     }
 
     function exportCurrentPng() {
-        canvas.toBlob(blob => {
+        getActiveCanvas().toBlob(blob => {
             if (!blob) return;
             downloadBlob(`${activeKey || "fractal"}-render.png`, "image/png", blob);
         });
@@ -351,23 +501,30 @@ $(document).ready( () => {
 
     function stopMandelbrotInteraction() {
         renderToken++;
-        isMandelbrotDragging = false;
-        mandelbrotDragPointerId = null;
-        mandelbrotDragLast = null;
+        dragSession = null;
         canvas.classList.remove("is-dragging");
+        glCanvas.classList.remove("is-dragging");
         if (mandelbrotCommitTimer) {
             clearTimeout(mandelbrotCommitTimer);
             mandelbrotCommitTimer = null;
         }
         cancelRenderCycle();
-        if (MandelbrotEngine._activeWorker) {
-            MandelbrotEngine._activeWorker.terminate();
-            MandelbrotEngine._activeWorker = null;
+        if (currentEngine && typeof currentEngine.cancelRender === "function") {
+            currentEngine.cancelRender();
         }
     }
 
     function finalizeMandelbrotInteraction() {
-        if (activeKey !== "Mandelbrot" || !currentState || !currentState.view) return;
+        if (!currentState || !currentState.view) return;
+        if (mandelbrotCommitTimer) {
+            clearTimeout(mandelbrotCommitTimer);
+            mandelbrotCommitTimer = null;
+        }
+        if (!PIXEL_FRACTAL_KEYS.has(activeKey)) {
+            executeRenderCycle();
+            commitHistorySnapshot();
+            return;
+        }
         currentState = {
             ...currentState,
             generation: currentState.generation + 1,
@@ -378,22 +535,53 @@ $(document).ready( () => {
     }
 
     function zoomInMandelbrot() {
-        if (activeKey !== "Mandelbrot" || !currentState || !currentState.view) return;
+        if (!currentState || !currentState.view) return;
         flushPendingHistoryCommit();
 
-        const view = currentState.view;
-        const maxZoom = 1e-12;// 0.0008;
-        const nextScale = Math.max(maxZoom, Math.min(6, view.scale * 0.85));
+        const targetCanvas = getActiveCanvas();
+        zoomCurrentFractal(targetCanvas, targetCanvas.width / 2, targetCanvas.height / 2, true);
+        if (PIXEL_FRACTAL_KEYS.has(activeKey)) {
+            finalizeMandelbrotInteraction();
+        } else {
+            executeRenderCycle();
+            commitHistorySnapshot();
+        }
+    }
+
+    function zoomOutFractal() {
+        if (!currentState || !currentState.view) return;
+        flushPendingHistoryCommit();
+
+        const targetCanvas = getActiveCanvas();
+        zoomCurrentFractal(targetCanvas, targetCanvas.width / 2, targetCanvas.height / 2, false);
+        if (PIXEL_FRACTAL_KEYS.has(activeKey)) {
+            finalizeMandelbrotInteraction();
+        } else {
+            executeRenderCycle();
+            commitHistorySnapshot();
+        }
+    }
+
+    function panViewByKeyboard(dx, dy) {
+        if (!currentState || !currentState.view) return;
+        flushPendingHistoryCommit();
+
+        const targetCanvas = getActiveCanvas();
+        panCurrentFractal(dx, dy, targetCanvas);
+        executeRenderCycle();
+        commitHistorySnapshot();
+    }
+
+    function toggleJuliaFreeze() {
+        if (!JULIA_FRACTAL_KEYS.has(activeKey) || !currentState || !currentState.view) return;
 
         currentState = {
             ...currentState,
-            view: {
-                ...view,
-                scale: nextScale
-            }
+            juliaFrozen: !currentState.juliaFrozen
         };
-
-        finalizeMandelbrotInteraction();
+        syncMandelbrotControls();
+        executeRenderCycle();
+        commitHistorySnapshot();
     }
 
     function scheduleMandelbrotCommit(delay = 160) {
@@ -410,31 +598,44 @@ $(document).ready( () => {
         $("#infoName").text(activeKey);
         $("#infoGen").text(currentState.generation);
         const metricsText = currentState.view
-            ? `${currentState.elementCount || 0} | zoom ${currentState.view.scale.toFixed(4)}`
+            ? `${currentState.elementCount || 0} | zoom ${formatZoomValue(currentState.view.scale)}`
             : (currentState.elementCount || 0);
         $("#infoElements").text(metricsText);
+        refreshFractalDocs();
         syncMandelbrotControls();
     }
 
     // --- Unified Execution Render Loop ---
     function executeRenderCycle() {
         const token = ++renderToken;
-        // clearCanvas();
-        // currentEngine.render(ctx, currentState, currentParams);
-        // updateMiniFractal();
-        // updateInfoPanel();
+        const activeCanvas = getActiveCanvas();
+        if (!PIXEL_FRACTAL_KEYS.has(activeKey) && currentState && currentState.animationStartedAt) {
+            const elapsed = performance.now() - currentState.animationStartedAt;
+            const progress = Math.max(0, Math.min(1, elapsed / Math.max(1, currentState.animationDuration || 1)));
+            currentState = {
+                ...currentState,
+                animationProgress: progress,
+            };
+        }
 
-        clearCanvas();
-        
-        // Pass execution hook down to engine so asynchronous workers can trigger previews smoothly
-        currentEngine.render(ctx, currentState, currentParams, function() {
-            if (token !== renderToken) return;
-            updateMiniFractal();
-            updateInfoPanel();
-        });
+        if (isPixelMode()) {
+            currentEngine.render(activeCanvas, currentState, currentParams, function() {
+                if (token !== renderToken) return;
+                updateMiniFractal();
+                updateInfoPanel();
+            });
+        } else {
+            renderGeometryScene(activeCanvas, activeKey, currentState, currentParams, function() {
+                if (token !== renderToken) return;
+                updateMiniFractal();
+                updateInfoPanel();
+                if (currentState && currentState.animationStartedAt && (currentState.animationProgress || 0) < 1) {
+                    scheduleRenderCycle();
+                }
+            });
+        }
 
-        // For geometric engines that finish synchronously instantly, fallback update checks:
-        if (activeKey !== "Mandelbrot") {
+        if (!isPixelMode()) {
             updateMiniFractal();
             updateInfoPanel();
         }
@@ -482,7 +683,7 @@ $(document).ready( () => {
 
             // Bind pts for parameters change intercerequiring complete shape structure rebuilding
             $input.on('change', function() {
-                if (activeKey === "Mandelbrot" && field.key === "maxElements") {
+                if (PIXEL_FRACTAL_KEYS.has(activeKey) && field.key === "maxElements") {
                     currentState = {
                         ...currentState,
                         elementCount: Math.min(Number(currentParams.maxElements), currentState.elementCount)
@@ -490,7 +691,7 @@ $(document).ready( () => {
                     executeRenderCycle();
                     commitHistorySnapshot();
                 } else if (field.key === "padding" || field.key === "maxElements") {
-                    currentState = currentEngine.init(canvas, currentParams);
+                    currentState = currentEngine.init(getActiveCanvas(), currentParams);
                     executeRenderCycle();
                     commitHistorySnapshot();
                 }
@@ -515,7 +716,7 @@ $(document).ready( () => {
 
         // Fetch defaults safely out of schema definition arrays
         currentParams = targetEngine.getDefaultParams();
-        currentState = targetEngine.init(canvas, currentParams);
+        currentState = normalizeStateForMode(targetEngine.init(getActiveCanvas(), currentParams));
 
         renderControlPanel();
         executeRenderCycle();
@@ -536,7 +737,12 @@ $(document).ready( () => {
             redoState();
             return;
         }
-        if (activeKey === "Mandelbrot" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (JULIA_FRACTAL_KEYS.has(activeKey) && key === "c") {
+            e.preventDefault();
+            toggleJuliaFreeze();
+            return;
+        }
+        if (PIXEL_FRACTAL_KEYS.has(activeKey) && !e.ctrlKey && !e.metaKey && !e.altKey) {
             if (e.key === "+" || e.key === "=" || e.code === "NumpadAdd") {
                 e.preventDefault();
                 zoomInMandelbrot();
@@ -545,57 +751,213 @@ $(document).ready( () => {
         }
 
         if (e.key === 'Enter' && currentEngine && currentState) {
+            e.preventDefault();
+            e.stopPropagation();
             flushPendingHistoryCommit();
-            currentState = currentEngine.next(currentState, currentParams);
+            const previousView = currentState.view ? cloneData(currentState.view) : null;
+            const nextState = currentEngine.next(currentState, currentParams);
+            currentState = nextState;
+            if (!currentState.view && previousView) {
+                currentState = {
+                    ...currentState,
+                    view: previousView,
+                };
+            }
+            currentState = normalizeStateForMode(currentState);
+            if (!PIXEL_FRACTAL_KEYS.has(activeKey)) {
+                currentState = {
+                    ...currentState,
+                    animationStartedAt: performance.now(),
+                    animationDuration: 700,
+                    animationProgress: 0,
+                };
+            }
             executeRenderCycle();
             commitHistorySnapshot();
+            return;
+        }
+
+        if (!currentState || !currentState.view) return;
+
+        const isPanLeft = key === "a" || e.key === "ArrowLeft";
+        const isPanRight = key === "d" || e.key === "ArrowRight";
+        const isPanUp = key === "w" || e.key === "ArrowUp";
+        const isPanDown = key === "s" || e.key === "ArrowDown";
+        const isZoomIn = e.key === "+" || e.key === "=" || e.code === "NumpadAdd";
+        const isZoomOut = e.key === "-" || e.code === "NumpadSubtract";
+
+        if (isPanLeft || isPanRight || isPanUp || isPanDown) {
+            e.preventDefault();
+            const step = Math.max(12, Math.round((currentState.view.scale || 1) * 24));
+            let dx = 0;
+            let dy = 0;
+            if (isPanLeft) dx = step;
+            if (isPanRight) dx = -step;
+            if (isPanUp) dy = step;
+            if (isPanDown) dy = -step;
+            panViewByKeyboard(dx, dy);
+            return;
+        }
+
+        if (isZoomIn || isZoomOut) {
+            e.preventDefault();
+            flushPendingHistoryCommit();
+            zoomCurrentFractal(getActiveCanvas(), getActiveCanvas().width / 2, getActiveCanvas().height / 2, isZoomIn);
+            if (PIXEL_FRACTAL_KEYS.has(activeKey)) {
+                finalizeMandelbrotInteraction();
+            } else {
+                executeRenderCycle();
+                commitHistorySnapshot();
+            }
+            return;
+        }
+
+        if (key === " " || e.code === "Space") {
+            e.preventDefault();
+            resetCurrentState();
+            return;
         }
     });
 
-    canvas.addEventListener("pointerdown", function (e) {
-        if (activeKey !== "Mandelbrot" || !currentState || !currentState.view) return;
-        isMandelbrotDragging = true;
-        mandelbrotDragPointerId = e.pointerId;
-        mandelbrotDragLast = { x: e.offsetX, y: e.offsetY };
-        canvas.setPointerCapture(e.pointerId);
-        canvas.classList.add("is-dragging");
-        e.preventDefault();
-    });
+    [canvas, glCanvas].forEach((targetCanvas) => {
+        targetCanvas.addEventListener("pointerdown", function (e) {
+            if (!currentState || !currentState.view) return;
 
-    canvas.addEventListener("pointermove", function (e) {
-        if (activeKey !== "Mandelbrot" || !isMandelbrotDragging || e.pointerId !== mandelbrotDragPointerId) return;
-        if (!currentState || !currentState.view) return;
-
-        const dx = e.offsetX - mandelbrotDragLast.x;
-        const dy = e.offsetY - mandelbrotDragLast.y;
-        mandelbrotDragLast = { x: e.offsetX, y: e.offsetY };
-
-        currentState = {
-            ...currentState,
-            view: {
-                ...currentState.view,
-                centerX: currentState.view.centerX - (dx / canvas.width) * currentState.view.scale,
-                centerY: currentState.view.centerY - (dy / canvas.width) * currentState.view.scale
+            if (e.button === 0) {
+                dragSession = {
+                    pointerId: e.pointerId,
+                    button: e.button,
+                    canvas: targetCanvas,
+                    startX: e.offsetX,
+                    startY: e.offsetY,
+                    lastX: e.offsetX,
+                    lastY: e.offsetY,
+                    moved: false,
+                };
+                try {
+                    targetCanvas.setPointerCapture(e.pointerId);
+                } catch (_) {}
+                targetCanvas.classList.add("is-dragging");
+                e.preventDefault();
+                return;
             }
-        };
 
-        scheduleRenderCycle();
-        scheduleMandelbrotCommit();
-        e.preventDefault();
+            if (e.button === 1) {
+                zoomCurrentFractal(targetCanvas, e.offsetX, e.offsetY, true);
+                if (PIXEL_FRACTAL_KEYS.has(activeKey)) {
+                    finalizeMandelbrotInteraction();
+                } else {
+                    executeRenderCycle();
+                    commitHistorySnapshot();
+                }
+                e.preventDefault();
+                return;
+            }
+
+            if (e.button === 2) {
+                e.preventDefault();
+            }
+        });
+
+        targetCanvas.addEventListener("pointermove", function (e) {
+            if (dragSession && dragSession.pointerId === e.pointerId) {
+                if (!currentState || !currentState.view) return;
+
+                const dx = e.offsetX - dragSession.lastX;
+                const dy = e.offsetY - dragSession.lastY;
+                dragSession.lastX = e.offsetX;
+                dragSession.lastY = e.offsetY;
+
+                const distance = Math.hypot(e.offsetX - dragSession.startX, e.offsetY - dragSession.startY);
+                if (!dragSession.moved && distance >= DRAG_THRESHOLD) {
+                    dragSession.moved = true;
+                }
+                if (!dragSession.moved) return;
+
+                panCurrentFractal(dx, dy, targetCanvas);
+                scheduleRenderCycle();
+                e.preventDefault();
+                return;
+            }
+
+            if (PIXEL_FRACTAL_KEYS.has(activeKey) && JULIA_FRACTAL_KEYS.has(activeKey) && currentState && currentState.view && !currentState.juliaFrozen) {
+                currentState = {
+                    ...currentState,
+                    mouseX: e.offsetX,
+                    mouseY: e.offsetY
+                };
+                scheduleRenderCycle();
+                scheduleMandelbrotCommit();
+            }
+        });
+
+        targetCanvas.addEventListener("pointerup", function (e) {
+            if (dragSession && dragSession.pointerId === e.pointerId) {
+                const session = dragSession;
+                dragSession = null;
+
+                try {
+                    targetCanvas.releasePointerCapture(e.pointerId);
+                } catch (_) {}
+                targetCanvas.classList.remove("is-dragging");
+
+                if (session.moved) {
+                    if (PIXEL_FRACTAL_KEYS.has(activeKey)) {
+                        finalizeMandelbrotInteraction();
+                    } else {
+                        executeRenderCycle();
+                        commitHistorySnapshot();
+                    }
+                    e.preventDefault();
+                    return;
+                }
+
+                if (session.button === 0 && PIXEL_FRACTAL_KEYS.has(activeKey) && typeof currentEngine.adjustIterations === "function") {
+                    currentState = currentEngine.adjustIterations(currentState, 1, currentParams);
+                    executeRenderCycle();
+                    commitHistorySnapshot();
+                }
+
+                e.preventDefault();
+                return;
+            }
+
+            if (e.button === 2 && PIXEL_FRACTAL_KEYS.has(activeKey) && currentState && currentState.view) {
+                if (typeof currentEngine.adjustIterations === "function") {
+                    currentState = currentEngine.adjustIterations(currentState, -1, currentParams);
+                    executeRenderCycle();
+                    commitHistorySnapshot();
+                }
+                e.preventDefault();
+            }
+        });
+
+        targetCanvas.addEventListener("pointercancel", function (e) {
+            if (dragSession && dragSession.pointerId === e.pointerId) {
+                dragSession = null;
+                try {
+                    targetCanvas.releasePointerCapture(e.pointerId);
+                } catch (_) {}
+                targetCanvas.classList.remove("is-dragging");
+            }
+        });
+
+        targetCanvas.addEventListener("wheel", function (e) {
+            if (!currentState || !currentState.view) return;
+            e.preventDefault();
+
+            zoomCurrentFractal(targetCanvas, e.offsetX, e.offsetY, e.deltaY < 0);
+            if (PIXEL_FRACTAL_KEYS.has(activeKey)) {
+                finalizeMandelbrotInteraction();
+            } else {
+                executeRenderCycle();
+                commitHistorySnapshot();
+            }
+        }, { passive: false });
+
+        targetCanvas.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
     });
-
-    function endMandelbrotDrag(e) {
-        if (activeKey !== "Mandelbrot" || !isMandelbrotDragging || e.pointerId !== mandelbrotDragPointerId) return;
-        isMandelbrotDragging = false;
-        canvas.classList.remove("is-dragging");
-        try {
-            canvas.releasePointerCapture(e.pointerId);
-        } catch (_) {}
-        scheduleMandelbrotCommit(0);
-        e.preventDefault();
-    }
-
-    canvas.addEventListener("pointerup", endMandelbrotDrag);
-    canvas.addEventListener("pointercancel", endMandelbrotDrag);
 
 });

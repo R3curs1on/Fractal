@@ -25,7 +25,7 @@ class Point {
 const FernEngine = {
 
     schema :[   
-        { key: "maxElements", label: "Max Points", type: "range", min: 10000, max: 500000, step: 10000, default: 200000 },
+        { key: "maxElements", label: "Max Points", type: "range", min: 10000, max: 2000000, step: 25000, default: 250000 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
 
@@ -47,15 +47,18 @@ const FernEngine = {
 
     next(currentState, params) {
         if (currentState.elements.length > Number(params.maxElements)   ) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
 
-        // Generate 3,000 new evolutionary chaos points per Enter click
+        // Generate a chunk of new evolutionary chaos points per Enter click
         const nextList = [...currentState.elements];    
         let lastPt = nextList[nextList.length - 1] || new Point(0, 0);
 
-        for (let i = 0; i < 3000; i++) {
+        for (let i = 0; i < 5000; i++) {
             let r = Math.random();
             let nextX, nextY;
 
@@ -101,7 +104,7 @@ export default FernEngine ;
 const SierpinskiEngine = { 
 
     schema :[
-        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 200, default: 12000 },
         { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
@@ -135,8 +138,11 @@ const SierpinskiEngine = {
  
     next(currentState, params) {
          if (currentState.elements.length > Number(params.maxElements)) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
         const nextElements = generateNextGenTriangles(currentState.elements);
         return {

@@ -74,7 +74,7 @@ function generateNextGenTriangles(currentTriangles){
 const SierpinskiEngine = { 
 
     schema :[
-        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 150000, step: 500, default: 25000 },
         { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
@@ -108,8 +108,11 @@ const SierpinskiEngine = {
  
     next(currentState, params) {
          if (currentState.elements.length > Number(params.maxElements)) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
+            return {
+                generation: currentState.generation + 1,
+                elementCount: currentState.elements.length,
+                elements: currentState.elements
+            };
         }
         const nextElements = generateNextGenTriangles(currentState.elements);
         return {

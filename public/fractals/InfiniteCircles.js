@@ -31,8 +31,8 @@ function generateNextCircleGen(currentCircles) {
         // New circles will be half the size of the parent
         const newR = c.r / 2;
 
-        // Skip generating if the radius drops below 2 pixels (performance ceiling)
-        if (newR < 2) continue;
+        // Let users zoom deeper before geometry naturally disappears.
+        if (newR < 0.5) continue;
         
         // Push 4 sub-circles nestled perfectly inside the cardinal directions
         nextGenCircles.push(new FractalCircle(c.x - newR, c.y, newR)); // Left
@@ -49,7 +49,7 @@ function generateNextCircleGen(currentCircles) {
 
 const InfiniteCirclesEngine = {
     schema: [
-        { key: "maxElements", label: "Max Circles", type: "range", min: 100, max: 10000, step: 100, default: 5000 },
+        { key: "maxElements", label: "Max Circles", type: "range", min: 100, max: 50000, step: 500, default: 12000 },
         { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 20 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
@@ -73,8 +73,11 @@ const InfiniteCirclesEngine = {
     },
     next(currentState, params) {    
         if (currentState.elements.length >= Number(params.maxElements)) {
-            console.warn("Reached maximum element limit for Infinite Circles. No further generations will be produced.");
-            return currentState; // Return unchanged state to halt progression
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
         const nextGenCircles = generateNextCircleGen(currentState.elements);
         return { generation: currentState.generation + 1, elements: nextGenCircles, elementCount: nextGenCircles.length };

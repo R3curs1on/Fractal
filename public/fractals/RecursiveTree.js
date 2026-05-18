@@ -37,7 +37,7 @@ function generateNextTreeGen(currentBranches) {
         if (b.hasSplit) continue;
 
         const newLength = b.length * lengthReduction;
-        if (newLength < 3) continue; // Boundary limit safeguard
+        if (newLength < 1.25) continue; // Keep the tree growable for deeper zooms
 
         // Mark this current branch as split so it becomes stable wood
         b.hasSplit = true;
@@ -84,7 +84,7 @@ export const TreeEngine = {
 
 const RecursiveTreeEngine = {
     schema: [
-        { key: "maxElements", label: "Max Branches", type: "range", min: 100, max: 8000, step: 100, default: 8000 },
+        { key: "maxElements", label: "Max Branches", type: "range", min: 100, max: 20000, step: 200, default: 12000 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
     getDefaultParams() {
@@ -103,8 +103,11 @@ const RecursiveTreeEngine = {
     },
     next(currentState, params) { 
         if (currentState.elements.length >= Number(params.maxElements)) {
-            console.warn("Reached maximum element limit for Recursive Tree. No further generations will be produced.");
-            return currentState; // Return unchanged state to halt progression
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
         return { generation: currentState.generation + 1, elements: generateNextTreeGen(currentState.elements), elementCount: generateNextTreeGen(currentState.elements).length };
     },
@@ -122,7 +125,7 @@ export { Branch, Point };
 const SierpinskiEngine = { 
 
     schema :[
-        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 200, default: 12000 },
         { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
@@ -156,8 +159,11 @@ const SierpinskiEngine = {
  
     next(currentState, params) {
          if (currentState.elements.length > Number(params.maxElements)) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
         const nextElements = generateNextGenTriangles(currentState.elements);
         return {

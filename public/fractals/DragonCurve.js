@@ -60,7 +60,7 @@ class Point {
 const DragonCurveEngine = {
 
     schema: [
-        { key: "maxElements", label: "Max Segments", type: "range", min: 100, max: 15000, step: 100, default: 5000 },
+        { key: "maxElements", label: "Max Segments", type: "range", min: 100, max: 50000, step: 500, default: 12000 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
     getDefaultParams() {
@@ -79,8 +79,11 @@ const DragonCurveEngine = {
     },
     next(currentState, params) {
         if (currentState.elements.length >= Number(params.maxElements)) {
-            console.log("Reached max element threshold for Dragon Curve. No further generations will be produced.");
-            return currentState; // No change if we've hit the max element threshold
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
         let nextGenSegments = generateNextDragonGen(currentState.elements);
         return { generation: currentState.generation + 1, elements: nextGenSegments, elementCount: nextGenSegments.length };
@@ -117,7 +120,7 @@ export { DragonSegment, Point };
             const SierpinskiEngine = { 
 
     schema :[
-        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 50000, step: 500, default: 12000 },
         { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
@@ -151,8 +154,11 @@ export { DragonSegment, Point };
  
     next(currentState, params) {
          if (currentState.elements.length > Number(params.maxElements)) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
         const nextElements = generateNextGenTriangles(currentState.elements);
         return {

@@ -67,7 +67,7 @@ function generateNextGenSnowFlake(currentSegments){
 
 const SnowFlakeEngine = {
     schema :[
-        { key: "maxElements", label: "Max Segments", type: "range", min: 100, max: 20000, step: 100, default: 15000 },
+        { key: "maxElements", label: "Max Segments", type: "range", min: 100, max: 150000, step: 500, default: 25000 },
         { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 70 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
@@ -99,8 +99,11 @@ const SnowFlakeEngine = {
     },
     next(currState,params){
         if(currState.elements.length > Number(params.maxElements)){ 
-            console.warn("Safety Threshold Limit Hit");
-            return currState;
+            return {
+                generation: currState.generation + 1,
+                elements: currState.elements,
+                elementCount: currState.elements.length
+            };
         }
         const nextElements = generateNextGenSnowFlake(currState.elements);
         return { generation: currState.generation + 1, elements: nextElements, elementCount: nextElements.length };
@@ -147,7 +150,7 @@ export { Point, Segment };
 const SierpinskiEngine = { 
 
     schema :[
-        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 20000, step: 100, default: 10000 },
+        { key: "maxElements", label: "Max Triangles", type: "range", min: 100, max: 150000, step: 500, default: 25000 },
         { key: "padding", label: "Canvas Padding", type: "range", min: 10, max: 150, step: 5, default: 50 },
         { key: "colorPalette", label: "Color Palette", type: "select", options: ["default", "fire", "ice"], default: "default" }
     ],
@@ -181,8 +184,11 @@ const SierpinskiEngine = {
  
     next(currentState, params) {
          if (currentState.elements.length > Number(params.maxElements)) {
-            console.warn("Safety Threshold Limit Hit");
-            return currentState;
+            return {
+                generation: currentState.generation + 1,
+                elements: currentState.elements,
+                elementCount: currentState.elements.length
+            };
         }
         const nextElements = generateNextGenTriangles(currentState.elements);
         return {

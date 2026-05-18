@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fractal Engine</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/iosevka@5.3.3/index.css">
     <link rel="stylesheet" href="./style.css">
 </head>
@@ -28,6 +29,22 @@
                 </div>
             </section>
 
+            <section class="docs-section">
+                <h3 class="panel-title">Fractal Docs</h3>
+                <div class="doc-card">
+                    <div class="doc-title" id="infoTitle">-</div>
+                    <div class="doc-summary" id="infoSummary">Pick a fractal to see its math.</div>
+                    <div class="doc-block">
+                        <div class="doc-label">Equation</div>
+                        <pre class="doc-pre" id="infoEquation">—</pre>
+                    </div>
+                    <div class="doc-block">
+                        <div class="doc-label">Notes</div>
+                        <div class="doc-notes" id="infoNotes">—</div>
+                    </div>
+                </div>
+            </section>
+
             <section class="history-section">
                 <h3 class="panel-title">State</h3>
                 <div class="action-row">
@@ -40,7 +57,9 @@
                     <button id="exportJson" type="button">Export JSON</button>
                 </div>
                 <div class="action-row">
-                    <button id="mandelbrotZoomIn" type="button">Mandelbrot Zoom In</button>
+                    <button id="mandelbrotZoomIn" type="button">Zoom In</button>
+                    <button id="mandelbrotZoomOut" type="button">Zoom Out</button>
+                    <button id="juliaFreeze" type="button">Freeze Julia</button>
                 </div>
             </section>
         
@@ -75,22 +94,27 @@
             <button class="visual" id="VicsekFractal">Vicsek Cross</button>
             <button class="visual" id="RecursiveTree">Fractal Tree</button>
             <button class="visual" id="Mandelbrot">Mandelbrot Set</button>
-            <button class="visual" id="NewtonRaphson">Newton-Raphson</button>
+            <button class="visual" id="MandelbrotCube">Mandelbrot Cube</button>
+            <button class="visual" id="Julia">Julia</button>
+            <button class="visual" id="JuliaCube">Julia Cube</button>
+            <button class="visual" id="NewtonRaphson">Newton Fractal</button>
+            <button class="visual" id="ApollonianGasket">Apollonian Gasket</button>
             <button class="visual" id="BarnsleyFern">Barnsley Fern</button>
             <button class="visual" id="LSystemPlant">L-System Plant</button>
          </div>
         </nav>
 
         <div id="controlsHint" style="visibility: hidden;">
-            Press <kbd>Enter</kbd> to advance generation
+            Press <kbd>Enter</kbd> to advance generation. Drag to move, wheel zooms, <kbd>C</kbd> freezes Julia, and left/right click adjusts iterations on the WebGL fractals.
         </div>
 
-        <canvas id="fractalCanvas" width="900" height="900"></canvas>
+        <canvas id="fractalCanvas" class="render-canvas" width="900" height="900"></canvas>
+        <canvas id="fractalCanvasGL" class="render-canvas render-hidden" width="900" height="900"></canvas>
 
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- <script type="module" src="./main.js"></script> -->
-    <script type="module" src="./main.js?v=2.0"></script>
+    <script type="module" src="./main.js?v=2.6"></script>
 </body>
 </html>
