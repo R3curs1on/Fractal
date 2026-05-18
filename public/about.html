@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Fractals</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/iosevka@5.3.3/index.css">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body class="about-page">
+    <div class="main-container about-page-shell">
+        <header class="site-header">
+            <div class="hero-links">
+                <!-- <a class="about-ghost" href="./index.html">Back to Viewer</a> -->
+                <a class="about-cta" href="./index.html">Open Fractal Engine</a>
+            </div>
+            
+            <h1>About Fractals</h1>
+            <p class="subtitle">A field guide to infinite detail, recursion, and the mathematics that makes shapes feel alive.</p>
+        </header>
+
+        <section class="page-intro">
+            <div class="page-hero-copy">
+                <div class="about-kicker">Why they matter</div>
+                <h2>Finite rules. Infinite appetite.</h2>
+                <p>
+                    Fractals are what happens when a simple rule refuses to stay small.
+                    Repeat a transformation, feed its output back into itself, and detail keeps
+                    emerging at every scale. Some fractals come from geometry, some from probability,
+                    some from complex numbers, but the core idea is always the same: recursion creates
+                    structure faster than intuition can keep up.
+                </p>
+                <div class="about-chips">
+                    <span>Self-similarity</span>
+                    <span>Recursion</span>
+                    <span>Complex dynamics</span>
+                    <span>Iterated systems</span>
+                </div>
+            </div>
+
+            <aside class="page-aside">
+                <h3>The names behind the field</h3>
+                <ul>
+                    <li>Benoit Mandelbrot coined and popularized the term <em>fractal</em>.</li>
+                    <li>Pierre Fatou and Gaston Julia laid the groundwork for complex dynamics.</li>
+                    <li>Helge von Koch and Wacław Sierpiński gave us iconic geometric recursion.</li>
+                    <li>Newton's method became a fractal when iteration met the complex plane.</li>
+                    <li>Apollonian circle packing shows that even classical geometry can become recursive.</li>
+                </ul>
+            </aside>
+        </section>
+
+        <section class="about-grid" aria-label="Fractal fundamentals">
+            <article class="about-card">
+                <h3>What a fractal actually is</h3>
+                <p>
+                    A fractal is usually a pattern that keeps revealing detail when you zoom in.
+                    That can mean exact self-similarity, statistical self-similarity, or a recursive rule
+                    that generates a shape too rich to summarize at one scale.
+                </p>
+            </article>
+            <article class="about-card">
+                <h3>The recursion behind it</h3>
+                <p>
+                    The math is brutally simple and brutally powerful: define a state, transform it, and
+                    repeat until a stopping condition or a visible limit appears.
+                </p>
+                <pre class="about-equation">z(n+1) = z(n)^2 + c
+x(n+1) = f(x(n))
+state(n+1) = rule(state(n))</pre>
+            </article>
+            <article class="about-card">
+                <h3>Why it looks alive</h3>
+                <p>
+                    Small changes to the rule, the initial seed, or the parameter c can radically change
+                    the image. That sensitivity is what turns deterministic math into something that feels
+                    organic, unstable, and alive.
+                </p>
+            </article>
+            <article class="about-card">
+                <h3>Why people use them</h3>
+                <p>
+                    Fractals show up in computer graphics, procedural art, terrain generation, antenna design,
+                    signal analysis, chaos theory, and anywhere a natural-looking structure needs to come
+                    from a compact algorithm.
+                </p>
+            </article>
+        </section>
+
+        <section class="fractal-gallery" id="featuredFractals">
+            <div class="gallery-header">
+                <h3>Featured fractal families</h3>
+                <p>
+                    These are the families rendered in the project. Each one starts from a different rule,
+                    but all of them lean on iteration, geometry, and a little obsession.
+                </p>
+            </div>
+
+            <div class="gallery-grid">
+                <article class="fractal-card">
+                    <img class="fractal-image" src="./images/Mandelbrot_sequence_new.gif" alt="Placeholder for a Mandelbrot set image to be added later">
+                    <h4>Mandelbrot Set</h4>
+                    <p>The poster child of escape-time fractals. Every pixel asks how fast it escapes under a quadratic recurrence.</p>
+                    <a href="https://en.wikipedia.org/wiki/Mandelbrot_set" target="_blank" rel="noreferrer">Wikipedia</a>
+                </article>
+                <article class="fractal-card">
+                    <img class="fractal-image" src="./images/JSr07885.gif" alt="Placeholder for a Julia set image to be added later">
+                    <h4>Julia Set</h4>
+                    <p>The same complex dynamics, but the constant changes and the shape becomes a map of stability and chaos.</p>
+                    <a href="https://en.wikipedia.org/wiki/Julia_set" target="_blank" rel="noreferrer">Wikipedia</a>
+                </article>
+                <article class="fractal-card">
+                    <img class="fractal-image" src="./images/FRACT008.png" alt="Placeholder for a Newton fractal image to be added later">
+                    <h4>Newton Fractal</h4>
+                    <p>Newton's method becomes a color-coded basin map when each pixel iterates toward a root in the complex plane.</p>
+                    <a href="https://en.wikipedia.org/wiki/Newton_fractal" target="_blank" rel="noreferrer">Wikipedia</a>
+                </article>
+                <article class="fractal-card">
+                    <img class="fractal-image" src="./images/apollonian7.gif" alt="Placeholder for an Apollonian gasket image to be added later">
+                    <h4>Apollonian Gasket</h4>
+                    <p>Circle packing pushed until every gap wants another circle. Classical geometry, but recursive and relentless.</p>
+                    <a href="https://en.wikipedia.org/wiki/Apollonian_gasket" target="_blank" rel="noreferrer">Wikipedia</a>
+                </article>
+                <article class="fractal-card">
+                    <img class="fractal-image" src="./images/Animated_construction_of_Sierpinski_Triangle.gif" alt="Placeholder for a Sierpinski triangle image to be added later">
+                    <h4>Sierpinski Triangle</h4>
+                    <p>Recursive subtraction: remove the middle and the void itself becomes the design.</p>
+                    <a href="https://en.wikipedia.org/wiki/Sierpi%C5%84ski_triangle" target="_blank" rel="noreferrer">Wikipedia</a>
+                </article>
+                <article class="fractal-card">
+                    <img class="fractal-image" src="./images/DragonCurve_animation.gif" alt="Placeholder for a dragon curve image to be added later">
+                    <h4>Dragon Curve and L-systems</h4>
+                    <p>Grammar-based recursion: rewrite symbols, turn angles, and let a string become geometry.</p>
+                    <a href="https://en.wikipedia.org/wiki/Dragon_curve" target="_blank" rel="noreferrer">Wikipedia</a>
+                </article>
+            </div>
+        </section>
+
+        <section class="math-strip">
+            <h3>The math used in short </h3>
+            <p>
+                Most fractals in this project are built from one of three engines: escape-time iteration,
+                recursive subdivision, or an iterated function system. The viewer turns those ideas into live
+                geometry so you can drag, zoom, and watch the scale reveal the structure.
+            </p>
+            <pre class="about-equation">escape-time:    z(n+1) = f(z(n), c)
+subdivision:    shape(n+1) = split(shape(n))
+IFS / L-system: state(n+1) = rewrite(state(n))</pre>
+        </section>
+
+        <div class="about-footer-cta">
+            <p>
+                The Fractical viewer is where the mathematics moves. This page is only for the theory and the references.
+            </p>
+            <a class="about-cta" href="./index.html">Open the Fractal Viewer</a>
+        </div>
+    </div>
+</body>
+</html>
