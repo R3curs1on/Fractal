@@ -95,6 +95,387 @@ body {
     margin-bottom: 36px;
 }
 
+.hero-links {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    padding: 20px 20px;
+}
+
+.about-cta,
+.about-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.about-cta {
+    color: var(--bg-base);
+    background: linear-gradient(135deg, var(--cyan-bright), var(--cyan));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 8px 24px rgba(45, 212, 191, 0.18);
+}
+
+.about-ghost {
+    color: var(--text-primary);
+    border: 1px solid rgba(45, 212, 191, 0.18);
+    background: rgba(45, 212, 191, 0.06);
+}
+
+.about-cta:hover,
+.about-ghost:hover {
+    transform: translateY(-1px);
+}
+
+.about-page .main-container {
+    max-width: 1160px;
+}
+
+.about-page .site-header {
+    margin-bottom: 26px;
+}
+
+.about-page-shell {
+    padding-top: 34px;
+}
+
+.page-intro {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.page-hero-copy {
+    padding: 22px;
+    border-radius: 18px;
+    border: 1px solid rgba(45, 212, 191, 0.16);
+    background: linear-gradient(180deg, rgba(18, 23, 33, 0.9), rgba(7, 11, 18, 0.86));
+}
+
+.page-hero-copy p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 0.94rem;
+}
+
+.page-aside {
+    padding: 22px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.page-aside h3 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.page-aside ul {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+.page-aside li::before {
+    content: "•";
+    color: var(--cyan-bright);
+    margin-right: 8px;
+}
+
+.fractal-gallery {
+    margin-top: 22px;
+}
+
+.gallery-header {
+    margin-bottom: 14px;
+}
+
+.gallery-header h3 {
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: 6px;
+}
+
+.gallery-header p {
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+    line-height: 1.6;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.fractal-card {
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(45, 212, 191, 0.12);
+    background: rgba(7, 11, 18, 0.58);
+}
+
+.fractal-card h4 {
+    color: var(--text-primary);
+    margin: 10px 0 6px;
+    font-size: 0.96rem;
+}
+
+.fractal-card p {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    line-height: 1.55;
+}
+
+.fractal-card a {
+    display: inline-block;
+    margin-top: 10px;
+    color: var(--cyan-bright);
+    text-decoration: none;
+    font-size: 0.82rem;
+}
+
+.fractal-card a:hover {
+    text-decoration: underline;
+}
+
+.fractal-image {
+    width: 100%;
+    min-height: 160px;
+    border-radius: 12px;
+    border: 1px dashed rgba(45, 212, 191, 0.24);
+    background:
+        radial-gradient(circle at top left, rgba(45, 212, 191, 0.12), transparent 36%),
+        rgba(0, 0, 0, 0.22);
+    object-fit: cover;
+}
+
+.math-strip {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(45, 212, 191, 0.14);
+    background: linear-gradient(180deg, rgba(45, 212, 191, 0.06), rgba(0, 0, 0, 0.16));
+}
+
+.math-strip h3 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.math-strip p {
+    color: var(--text-secondary);
+    line-height: 1.65;
+    font-size: 0.9rem;
+}
+
+.math-strip pre {
+    margin-top: 12px;
+}
+
+.about-footer-cta {
+    margin-top: 22px;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(45, 212, 191, 0.16);
+    background: linear-gradient(135deg, rgba(45, 212, 191, 0.06), rgba(0, 0, 0, 0.18));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.about-footer-cta p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.about-section {
+    margin: 0 auto 30px;
+    padding: 28px;
+    border: 1px solid rgba(45, 212, 191, 0.16);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at top left, rgba(45, 212, 191, 0.12), transparent 42%),
+        radial-gradient(circle at bottom right, rgba(94, 234, 212, 0.08), transparent 34%),
+        linear-gradient(180deg, rgba(18, 23, 33, 0.96), rgba(9, 12, 18, 0.98));
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.about-hero {
+    max-width: 880px;
+    margin: 0 auto 22px;
+    text-align: left;
+}
+
+.about-kicker {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--cyan-bright);
+    margin-bottom: 10px;
+}
+
+.about-hero h2 {
+    font-family: 'Iosevka', monospace;
+    font-size: clamp(1.5rem, 3vw, 2.35rem);
+    line-height: 1.12;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.about-hero p {
+    max-width: 860px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.about-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.about-chips span {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(45, 212, 191, 0.22);
+    color: var(--cyan-bright);
+    background: rgba(45, 212, 191, 0.08);
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.about-card {
+    min-height: 100%;
+    padding: 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(7, 11, 18, 0.55);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.about-card h3 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+}
+
+.about-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.65;
+}
+
+.about-equation {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(45, 212, 191, 0.12);
+    color: var(--cyan-bright);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+.about-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.about-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(45, 212, 191, 0.18);
+    background: rgba(45, 212, 191, 0.06);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.about-links a:hover {
+    transform: translateY(-1px);
+    border-color: rgba(94, 234, 212, 0.45);
+    background: rgba(45, 212, 191, 0.12);
+}
+
+.about-media {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.about-frame {
+    margin: 0;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(45, 212, 191, 0.16);
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.about-shot {
+    width: 100%;
+    min-height: 170px;
+    border-radius: 14px;
+    border: 1px dashed rgba(45, 212, 191, 0.28);
+    background:
+        linear-gradient(135deg, rgba(45, 212, 191, 0.08), rgba(255, 255, 255, 0.02)),
+        rgba(0, 0, 0, 0.24);
+    object-fit: cover;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.about-frame figcaption {
+    margin-top: 10px;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+@media (max-width: 860px) {
+    .about-grid,
+    .about-media {
+        grid-template-columns: 1fr;
+    }
+}
+
 .eyebrow {
     display: block;
     font-size: 0.7rem;
